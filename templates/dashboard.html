@@ -1,0 +1,708 @@
+<!-- Labyrinth dashboard template. lab.py build inlines the data at the DATA placeholder in the script below
+  and writes index.html.
+  DATA = { generated, tiers, meta{title, eyebrow, subtitle, size_name, value_name, value_scale: "linear" | "log", plane_title},
+           summary{by_tier, questions_open, deadends, under_review, resolved_by_size, ...},
+           nodes[ {id, kind, tier, status, title, statement, links[{to, rel}], review?, ...} ],
+           events[ {ts, type, summary, nodes, evidence} ],
+           frontier[ {size, label, lo, hi, step, admissible, counts{status: n}, resolved_fraction,
+                      runs[{v0, v1, status, why}] or bins[{v0, v1, counts}], bounds{lower_proved?, lower_conj?, upper?, upper_kind?},
+                      best_known} ],
+           scatter{title, tab, subtitle, x_name, y_name, y_scale, series[{key, label}], points[{x, y, series, src}]} or null,
+           frontier_history[ {date, size, resolved, why} ],
+           sota{ groups[], entries[ {id, group, cls, result, status, refs[], lit[], updated, previous[{date, was}]} ] } or null }
+  Every panel works without the optional parts. Keep the colour roles and the tier semantics. -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Research Labyrinth</title>
+<meta name="description" content="A knowledge map of a research programme: what is charted, walled off, conjectured, and still dark.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&family=Literata:opsz,wght@7..72,500;7..72,700&display=swap">
+<style>
+:root {
+  --bg: #EEF1F5; --panel: #F7F8FA; --card: #FFFFFF;
+  --ink: #17202B; --ink-2: #465163; --ink-3: #6F7A8C; --rule: #D3D9E2; --rule-2: #E3E7ED;
+  --fog: #E2E6EC; --fog-2: #CFD6DF; --neutral: #939DAC;
+  --c-known: #1F5FA6; --c-wall: #B8462A; --c-evid: #00897B; --c-door: #A87400; --c-conj: #7A4FB5; --c-hunch: #D0508F;
+  --tint-known: rgba(31,95,166,.10); --tint-door: rgba(168,116,0,.10);
+  --focus: #1F5FA6;
+  --f-head: "Literata", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --f-ui: "Atkinson Hyperlegible", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0B0F14; --panel: #10151C; --card: #141B24;
+    --ink: #E6EBF2; --ink-2: #AEB8C7; --ink-3: #808B9C; --rule: #263041; --rule-2: #1C2430;
+    --fog: #1A212B; --fog-2: #242D39; --neutral: #6E7989;
+    --c-known: #4A8CDA; --c-wall: #D2603C; --c-evid: #11A392; --c-door: #B5821A; --c-conj: #9670E2; --c-hunch: #E45A9C;
+    --tint-known: rgba(74,140,218,.14); --tint-door: rgba(181,130,26,.14); --focus: #4A8CDA;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0B0F14; --panel: #10151C; --card: #141B24;
+  --ink: #E6EBF2; --ink-2: #AEB8C7; --ink-3: #808B9C; --rule: #263041; --rule-2: #1C2430;
+  --fog: #1A212B; --fog-2: #242D39; --neutral: #6E7989;
+  --c-known: #4A8CDA; --c-wall: #D2603C; --c-evid: #11A392; --c-door: #B5821A; --c-conj: #9670E2; --c-hunch: #E45A9C;
+  --tint-known: rgba(74,140,218,.14); --tint-door: rgba(181,130,26,.14); --focus: #4A8CDA;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.5 var(--f-ui); margin: 0; padding-inline: 16px; padding-block: 0 48px; }
+.wrap { max-width: 1180px; margin: 0 auto; }
+h1, h2, h3 { font-family: var(--f-head); text-wrap: balance; margin: 0; }
+h1 { font-size: 30px; font-weight: 700; letter-spacing: -.01em; }
+h2 { font-size: 21px; font-weight: 700; }
+h3 { font-size: 16px; font-weight: 700; }
+p { margin: 0; max-width: 72ch; }
+.muted { color: var(--ink-2); }
+.small { font-size: 13px; }
+.mono, .num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+header.top { display: grid; gap: 10px; padding-block: 28px 18px; }
+header.top .sub { color: var(--ink-2); font-size: 16px; }
+.tiers { display: flex; flex-wrap: wrap; gap: 8px; }
+.tier { display: grid; gap: 2px; padding: 8px 12px; background: var(--card); border: 1px solid var(--rule); border-radius: 8px; min-width: 118px; }
+.tier .n { font-family: var(--f-mono); font-size: 20px; font-weight: 600; }
+.tier .l { font-size: 12px; color: var(--ink-2); }
+.tier .sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+nav.tabs { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); display: flex; flex-wrap: wrap; gap: 4px; padding-block: 8px; border-bottom: 1px solid var(--rule); }
+nav.tabs button { font: inherit; font-size: 14px; color: var(--ink-2); background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 6px 12px; cursor: pointer; }
+nav.tabs button:hover { color: var(--ink); background: var(--card); }
+nav.tabs button[aria-selected="true"] { color: var(--ink); background: var(--card); border-color: var(--rule); font-weight: 700; }
+button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+[hidden] { display: none !important; }   /* author display rules must not override the hidden attribute */
+section.view { display: grid; gap: 18px; padding-block: 22px; }
+.panel { background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 16px; display: grid; gap: 12px; }
+.panel .head { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: baseline; justify-content: space-between; }
+.chart { width: 100%; overflow-x: auto; }
+.chart svg { display: block; width: 100%; height: auto; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); }
+.legend .k { display: inline-flex; align-items: center; gap: 6px; }
+.legend svg { width: 22px; height: 12px; }
+svg text { fill: var(--ink-2); font-family: var(--f-ui); font-size: 12px; }
+svg .axis line, svg .axis path { stroke: var(--rule); }
+svg .grid line { stroke: var(--rule-2); }
+svg text.lbl-strong { fill: var(--ink); font-weight: 700; }
+.st-realized { fill: var(--c-known); }
+.st-impossible { fill: url(#hatch-wall); }
+.st-gap-conditional { fill: url(#hatch-door); }
+.st-conj-impossible { fill: url(#dots-neutral); }
+.st-unknown { fill: url(#fog); }
+.sw-realized { fill: var(--c-known); } .sw-impossible { fill: url(#hatch-wall); } .sw-gap-conditional { fill: url(#hatch-door); }
+.sw-conj-impossible { fill: url(#dots-neutral); } .sw-unknown { fill: url(#fog); }
+.line-conj { stroke: var(--c-conj); stroke-width: 2; fill: none; stroke-dasharray: 5 3; }
+.line-generic { stroke: var(--ink-3); stroke-width: 1.5; fill: none; stroke-dasharray: 2 3; }
+.line-lower { stroke: var(--c-wall); stroke-width: 2; fill: none; }
+.mk-max { fill: var(--ink); stroke: var(--panel); stroke-width: 2; }
+.mk-cand { fill: var(--panel); stroke: var(--ink); stroke-width: 1.5; }
+.hit { fill: transparent; }
+.tooltip { position: fixed; z-index: 20; pointer-events: none; background: var(--card); color: var(--ink); border: 1px solid var(--rule); border-radius: 8px; padding: 8px 10px; font-size: 13px; max-width: 320px; box-shadow: 0 4px 16px rgba(0,0,0,.14); }
+.tooltip b { font-weight: 700; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { color: var(--ink-3); font-weight: 700; font-size: 12px; letter-spacing: .04em; text-transform: uppercase; }
+td.num, th.num { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; }
+.board { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 14px; align-items: start; }
+.col { display: grid; gap: 10px; }
+.col > h3 { display: flex; align-items: center; gap: 8px; }
+.col > p { font-size: 13px; color: var(--ink-2); }
+.card { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; display: grid; gap: 6px; font-size: 13.5px; }
+.card .t { font-weight: 700; font-size: 14px; }
+.card .meta { display: flex; flex-wrap: wrap; gap: 6px; }
+.card dl { margin: 0; display: grid; gap: 4px; }
+.card dt { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; }
+.card dd { margin: 0; color: var(--ink-2); }
+.card.hunch { border-style: dashed; border-color: var(--c-hunch); }
+.card.dead { opacity: .92; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 1px 8px; border: 1px solid var(--rule); color: var(--ink-2); background: var(--panel); white-space: nowrap; }
+.chip .d { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.d-known { background: var(--c-known); } .d-wall { background: var(--c-wall); } .d-evid { background: var(--c-evid); }
+.d-door { background: var(--c-door); } .d-conj { background: var(--c-conj); } .d-hunch { background: var(--c-hunch); } .d-neutral { background: var(--neutral); }
+.kg-controls { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; font-size: 13px; }
+.kg-controls label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.kg-controls input[type="search"] { font: inherit; padding: 5px 9px; border: 1px solid var(--rule); border-radius: 6px; background: var(--card); color: var(--ink); min-width: 0; width: 220px; max-width: 100%; }
+#kg-wrap { position: relative; height: 560px; background: var(--card); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; }
+#kg-wrap svg { width: 100%; height: 100%; display: block; }
+.kg-link { stroke: var(--fog-2); stroke-width: 1; }
+.kg-link.hl { stroke: var(--ink-3); stroke-width: 1.6; }
+.kg-node { stroke: var(--card); stroke-width: 1.5; cursor: pointer; }
+.kg-node.dim { opacity: .18; }
+.kg-node.hunch { stroke: var(--c-hunch); stroke-dasharray: 2 2; fill: var(--card); stroke-width: 2; }
+.kg-label { font-size: 11.5px; fill: var(--ink-2); pointer-events: none; paint-order: stroke; stroke: var(--card); stroke-width: 3px; }
+.n-known { fill: var(--c-known); } .n-evid { fill: var(--c-evid); } .n-conj { fill: var(--c-conj); } .n-door { fill: var(--c-door); }
+.n-wall { fill: var(--c-wall); } .n-neutral { fill: var(--neutral); } .n-conj-refuted { fill: var(--c-wall); }
+#kg-detail { min-height: 64px; }
+.events { display: grid; gap: 6px; max-height: 520px; overflow-y: auto; padding-right: 4px; }
+.ev { display: grid; grid-template-columns: 120px 104px 1fr; gap: 10px; font-size: 13px; padding-block: 5px; border-bottom: 1px solid var(--rule-2); align-items: baseline; }
+.ev .ts { font-family: var(--f-mono); color: var(--ink-3); font-size: 12px; }
+@media (max-width: 640px) { .ev { grid-template-columns: 1fr; gap: 2px; } #kg-wrap { height: 420px; } h1 { font-size: 25px; } }
+.note-spec { border-left: 3px dashed var(--c-hunch); padding-left: 10px; color: var(--ink-2); font-size: 13.5px; }
+.flex { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+select { font: inherit; font-size: 13px; padding: 4px 8px; border-radius: 6px; border: 1px solid var(--rule); background: var(--card); color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <span class="eyebrow" id="eyebrow">Research programme · knowledge map</span>
+    <h1 id="title">Research Labyrinth</h1>
+    <p class="sub" id="subtitle">What is charted (blue), walled off (rust), conditionally walled or open (gold) and still dark (grey fog).
+      Speculation is kept apart from proof.</p>
+    <p class="small muted" id="gen"></p>
+    <div class="tiers" id="tiers"></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" id="tab-map" aria-controls="map" aria-selected="true">Map</button>
+    <button role="tab" id="tab-sota" aria-controls="sota" aria-selected="false">State of the art</button>
+    <button role="tab" id="tab-frontier" aria-controls="frontier" aria-selected="false">Frontier</button>
+    <button role="tab" id="tab-scatter" aria-controls="scatter" aria-selected="false">Scatter</button>
+    <button role="tab" id="tab-graph" aria-controls="graph" aria-selected="false">Knowledge graph</button>
+    <button role="tab" id="tab-timeline" aria-controls="timeline" aria-selected="false">Timeline</button>
+    <button role="tab" id="tab-board" aria-controls="board" aria-selected="false">Board</button>
+    <button role="tab" id="tab-tables" aria-controls="tables" aria-selected="false">Tables</button>
+  </nav>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <pattern id="hatch-wall" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+        <rect width="6" height="6" style="fill: var(--panel)"></rect>
+        <line x1="0" y1="0" x2="0" y2="6" style="stroke: var(--c-wall); stroke-width: 3"></line>
+      </pattern>
+      <pattern id="hatch-door" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(135)">
+        <rect width="6" height="6" style="fill: var(--panel)"></rect>
+        <line x1="0" y1="0" x2="0" y2="6" style="stroke: var(--c-door); stroke-width: 3"></line>
+      </pattern>
+      <pattern id="dots-neutral" width="5" height="5" patternUnits="userSpaceOnUse">
+        <rect width="5" height="5" style="fill: var(--fog)"></rect>
+        <circle cx="2.5" cy="2.5" r="1.1" style="fill: var(--neutral)"></circle>
+      </pattern>
+      <pattern id="fog" width="8" height="8" patternUnits="userSpaceOnUse">
+        <rect width="8" height="8" style="fill: var(--fog)"></rect>
+        <circle cx="2" cy="3" r=".7" style="fill: var(--fog-2)"></circle>
+        <circle cx="6" cy="7" r=".7" style="fill: var(--fog-2)"></circle>
+      </pattern>
+    </defs>
+  </svg>
+
+  <!-- MAP -->
+  <section class="view" id="map" role="tabpanel" aria-labelledby="tab-map">
+    <div class="panel">
+      <div class="head">
+        <h2 id="plane-title">The frontier map</h2>
+        <span class="small muted" id="plane-sub">Each column is one size; every admissible value up to the upper bound is one cell.
+          Sizes with many runs are drawn as bins of stacked shares.</span>
+      </div>
+      <div class="legend" id="legend-status"></div>
+      <div class="chart" id="plane"></div>
+      <div class="legend" id="legend-bounds"></div>
+    </div>
+    <div class="panel">
+      <div class="head">
+        <h2>Barcodes</h2>
+        <span class="small muted">One row per size, on a linear axis from its smallest to its largest admissible value.</span>
+      </div>
+      <div class="chart" id="barcodes"></div>
+    </div>
+  </section>
+
+  <!-- FRONTIER -->
+  <section class="view" id="frontier" role="tabpanel" aria-labelledby="tab-frontier" hidden>
+    <div class="panel">
+      <div class="head"><h2>How much of each size is resolved</h2>
+        <span class="small muted">Share of the admissible values of each size, by status. Resolved means realized or impossible.</span></div>
+      <div class="legend" id="legend-status-2"></div>
+      <div class="chart" id="stack"></div>
+    </div>
+    <div class="panel">
+      <div class="head"><h2>Frontier over time</h2>
+        <span class="small muted">Resolved share of each size at each milestone (knowledge.json, frontier_history).</span></div>
+      <div class="chart" id="history"></div>
+    </div>
+  </section>
+
+  <!-- SCATTER (optional: labyrinth/scatter.json) -->
+  <section class="view" id="scatter" role="tabpanel" aria-labelledby="tab-scatter" hidden>
+    <div class="panel">
+      <div class="head"><h2 id="scatter-title">Scatter</h2>
+        <span class="small muted" id="scatter-sub"></span></div>
+      <div class="legend" id="legend-scatter"></div>
+      <div class="chart" id="scatterplot"></div>
+    </div>
+  </section>
+
+  <!-- KNOWLEDGE GRAPH -->
+  <section class="view" id="graph" role="tabpanel" aria-labelledby="tab-graph" hidden>
+    <div class="panel">
+      <div class="head"><h2>Knowledge graph</h2>
+        <span class="small muted">Statements, conjectures, hunches, open doors and dead ends, linked by use, support and refutation.</span></div>
+      <div class="kg-controls" id="kg-controls"></div>
+      <div id="kg-wrap"></div>
+      <div id="kg-detail" class="card"><span class="muted small">Select a node to see its statement, status and links.</span></div>
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="view" id="timeline" role="tabpanel" aria-labelledby="tab-timeline" hidden>
+    <div class="panel">
+      <div class="head"><h2>Discoveries over time</h2>
+        <span class="small muted">Cumulative events from the log. Refutations are progress: each one removes a corridor.</span></div>
+      <div class="legend" id="legend-events"></div>
+      <div class="chart" id="cumul"></div>
+    </div>
+    <div class="panel">
+      <div class="head"><h2>Event log</h2><span class="small muted" id="evcount"></span></div>
+      <div class="events" id="events"></div>
+    </div>
+  </section>
+
+  <!-- BOARD -->
+  <section class="view" id="board" role="tabpanel" aria-labelledby="tab-board" hidden>
+    <p class="note-spec">Cards in the pink dashed column are hunches: vivid guesses kept on purpose because they point at unexplored corridors.
+      They are not claims, and nothing proved depends on them.</p>
+    <div class="board" id="boardcols"></div>
+  </section>
+
+  <!-- STATE OF THE ART (optional: labyrinth/sota.json) -->
+  <section class="view" id="sota" role="tabpanel" aria-labelledby="tab-sota" hidden>
+    <div class="panel">
+      <div class="head"><h2>State of the art</h2>
+        <span class="small muted">Best known result for each question, with its status, where it is proved and its history.</span></div>
+      <div id="sota-body"><p class="small muted">No state-of-the-art table yet (labyrinth/sota.json).</p></div>
+    </div>
+  </section>
+
+  <!-- TABLES -->
+  <section class="view" id="tables" role="tabpanel" aria-labelledby="tab-tables" hidden>
+    <div class="panel">
+      <h2>Frontier by size</h2>
+      <div class="tablewrap"><table id="t-frontier"></table></div>
+    </div>
+    <div class="panel">
+      <div class="head"><h2>All nodes</h2>
+        <label class="small">Show <select id="t-kind"></select></label></div>
+      <div class="tablewrap"><table id="t-nodes"></table></div>
+    </div>
+  </section>
+</div>
+<div class="tooltip" id="tip" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+<script>
+const DATA = /*LABYRINTH_DATA*/null;
+(function () {
+  if (!DATA) { document.querySelector(".wrap").insertAdjacentHTML("beforeend", "<p>No data embedded. Run labyrinth/lab.py build.</p>"); return; }
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  // One failing panel must not blank the others; it says so in place.
+  const safely = (fn, sel) => { try { fn(); } catch (err) { console.error(`[labyrinth] ${fn.name} failed:`, err);
+    const el = sel && document.querySelector(sel); if (el) el.insertAdjacentHTML("beforeend", `<p class="small muted">This panel failed (${String(err.message || err).replace(/[<>&]/g, "")}). Run lab.py check.</p>`); } };
+  const fmt = d3.format(",");
+  const META = DATA.meta || {};
+  const VN = META.value_name || "value", SN = META.size_name || "size", LOG = META.value_scale === "log";
+  const FR = DATA.frontier || [];
+  const TEXMAP = { "\\le": "≤", "\\ge": "≥", "\\ne": "≠", "\\neq": "≠", "\\leq": "≤", "\\geq": "≥", "\\lambda": "λ", "\\delta": "δ",
+    "\\Delta": "Δ", "\\kappa": "κ", "\\rho": "ρ", "\\mu": "μ", "\\sigma": "σ", "\\tau": "τ", "\\beta": "β", "\\alpha": "α", "\\iota": "ι",
+    "\\sum": "Σ", "\\prod": "Π", "\\cdot": "·", "\\setminus": "∖", "\\infty": "∞", "\\star": "⋆", "\\times": "×", "\\to": "→",
+    "\\iff": "⇔", "\\Leftrightarrow": "⇔", "\\Rightarrow": "⇒", "\\subseteq": "⊆", "\\subsetneq": "⊊", "\\in": "∈", "\\notin": "∉",
+    "\\cap": "∩", "\\cup": "∪", "\\partial": "∂", "\\approx": "≈", "\\ldots": "…", "\\dots": "…", "\\,": " ", "\\;": " ", "\\quad": "  ", "\\int": "∫", "\\left": "", "\\right": "" };
+  function tex(s) {
+    s = String(s ?? "");
+    s = s.replace(/\\binom\{([^{}]*)\}\{([^{}]*)\}/g, "C($1, $2)").replace(/\\frac\{([^{}]*)\}\{([^{}]*)\}/g, "($1)/($2)");
+    s = s.replace(/\\(operatorname|mathrm|mathbf|mathcal|widehat|overline|text|textup|emph)\{([^{}]*)\}/g, "$2");
+    for (const [k, v] of Object.entries(TEXMAP).sort((p, q) => q[0].length - p[0].length)) s = s.split(k).join(v);
+    s = s.replace(/\\([A-Za-z]+)/g, "$1").replace(/\$/g, "").replace(/[{}]/g, "").replace(/~/g, " ");
+    return s;
+  }
+  const tip = $("#tip");
+  function showTip(ev, html) { tip.innerHTML = html; tip.hidden = false; moveTip(ev); }
+  function moveTip(ev) { const w = tip.offsetWidth, h = tip.offsetHeight; let x = ev.clientX + 14, y = ev.clientY + 14;
+    if (x + w > innerWidth - 8) x = ev.clientX - w - 14; if (y + h > innerHeight - 8) y = ev.clientY - h - 14; tip.style.left = x + "px"; tip.style.top = y + "px"; }
+  function hideTip() { tip.hidden = true; }
+  const span = (a, b) => a === b ? fmt(a) : `${fmt(a)}–${fmt(b)}`;
+
+  // ---------------------------------------------------------- header
+  if (META.title) { $("#title").textContent = META.title; document.title = META.title; }
+  if (META.eyebrow) $("#eyebrow").textContent = META.eyebrow;
+  if (META.subtitle) $("#subtitle").textContent = META.subtitle;
+  $("#gen").textContent = `Snapshot built ${DATA.generated.replace("T", " ").replace("Z", " UTC")} from the knowledge graph, the event log and the computation outputs.`;
+
+  const STATUS = [
+    ["realized", "Realized (a witness exists)"], ["impossible", "Impossible (proved or exhaustive)"],
+    ["conj-impossible", "Conjecturally impossible"], ["gap-conditional", "Impossible under a named hypothesis"],
+    ["unknown", "Unknown"]];
+  const ORDER = STATUS.map(s => s[0]);
+  const STLABEL = Object.fromEntries(STATUS);
+  function legendStatus(el) {
+    el.innerHTML = STATUS.map(([k, l]) => `<span class="k"><svg viewBox="0 0 22 12"><rect width="22" height="12" rx="2" class="sw-${k}"></rect></svg>${l}</span>`).join("");
+  }
+  legendStatus($("#legend-status")); legendStatus($("#legend-status-2"));
+
+  // ---------------------------------------------------------- summary tiles
+  const S = DATA.summary;
+  const tiers = [
+    ["T1", "Proved, literature", "d-known"], ["T2", "Proved here, not peer reviewed", "d-known"], ["T3", "Exhaustive computation", "d-known"],
+    ["T4", "Computational evidence", "d-evid"], ["T5", "Conjectures", "d-conj"], ["T6", "Hunches (speculation)", "d-hunch"]];
+  $("#tiers").innerHTML = tiers.map(([t, l, c]) => `<div class="tier"><span class="n">${S.by_tier[t] ?? 0}</span><span class="l"><span class="sw ${c}"></span>${t} · ${l}</span></div>`).join("")
+    + `<div class="tier"><span class="n">${S.questions_open}</span><span class="l"><span class="sw d-door"></span>Open doors</span></div>`
+    + `<div class="tier"><span class="n">${S.deadends}</span><span class="l"><span class="sw d-wall"></span>Dead ends</span></div>`
+    + (S.under_review ? `<div class="tier"><span class="n">${S.under_review}</span><span class="l"><span class="sw d-door"></span>Under review</span></div>` : "");
+
+  // ---------------------------------------------------------- the frontier map
+  const BOUNDS = [["lower_proved", "proved lower bound", "line-lower"], ["lower_conj", "conjectured lower bound", "line-conj"], ["upper", "upper bound", "line-generic"]];
+  function drawPlane() {
+    if (!FR.length) { $("#plane").innerHTML = `<p class="small muted">No frontier yet: write labyrinth/frontier.json (format in lab.py) and rebuild.</p>`; return; }
+    if (META.plane_title) $("#plane-title").textContent = META.plane_title;
+    const W = 1000, H = 560, m = { l: 70, r: 170, t: 16, b: 52 };
+    const x = d3.scaleBand().domain(FR.map(d => d.label)).range([m.l, W - m.r]).paddingInner(0.28).paddingOuter(0.15);
+    const bvals = d => BOUNDS.map(([k]) => d.bounds[k]).filter(v => typeof v === "number");
+    const vmin = d3.min(FR, d => Math.min(d.lo, ...bvals(d))), vmax = d3.max(FR, d => Math.max(d.hi + d.step, ...bvals(d)));
+    const y = (LOG ? d3.scaleLog().domain([Math.max(vmin, 1), Math.max(vmax, 2)]) : d3.scaleLinear().domain([vmin, vmax])).range([H - m.b, m.t]).nice();
+    const yv = v => y(LOG ? Math.max(v, y.domain()[0]) : v);
+    const svg = d3.select("#plane").append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img")
+      .attr("aria-label", `Status of every admissible ${VN} for each ${SN}`);
+    const grid = svg.append("g").attr("class", "grid");
+    y.ticks(LOG ? 6 : 8).forEach(v => grid.append("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", y(v)).attr("y2", y(v)));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(LOG ? 6 : 8, LOG ? "~s" : ",~f").tickSizeOuter(0));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickSizeOuter(0));
+    svg.append("text").attr("transform", `translate(14,${(H - m.b + m.t) / 2}) rotate(-90)`).attr("text-anchor", "middle").attr("class", "lbl-strong")
+      .text(VN + (LOG ? " (log scale)" : ""));
+    for (const col of FR) {
+      const g = svg.append("g"), x0 = x(col.label), w = x.bandwidth();
+      if (col.bins) {
+        for (const b of col.bins) {
+          const tot = ORDER.reduce((s, k) => s + (b.counts[k] || 0), 0); if (!tot) continue;
+          const y0 = yv(b.v0), hh = Math.max(y0 - yv(b.v1 + col.step), 0.8);
+          let acc = 0;
+          ORDER.forEach(k => { const v = (b.counts[k] || 0) / tot; if (!v) return;
+            g.append("rect").attr("x", x0 + acc * w).attr("width", Math.max(v * w, 0.6)).attr("y", y0 - hh).attr("height", hh).attr("class", "st-" + k); acc += v; });
+          g.append("rect").attr("class", "hit").attr("x", x0 - 2).attr("width", w + 4).attr("y", y0 - Math.max(hh, 3)).attr("height", Math.max(hh, 3))
+            .on("mousemove", ev => showTip(ev, `<b>${esc(col.label)}</b> · ${esc(VN)} ∈ [${fmt(b.v0)}, ${fmt(b.v1)}]<br>` + ORDER.filter(k => b.counts[k]).map(k => `${esc(STLABEL[k])}: ${fmt(b.counts[k])}`).join("<br>"))).on("mouseleave", hideTip);
+        }
+        continue;
+      }
+      for (const run of col.runs) {
+        const y0 = yv(run.v0), hh = Math.max(y0 - yv(run.v1 + col.step), run.status === "realized" ? 1.6 : 0.8);
+        g.append("rect").attr("x", x0).attr("width", w).attr("y", y0 - hh).attr("height", hh).attr("class", "st-" + run.status);
+        g.append("rect").attr("class", "hit").attr("x", x0 - 2).attr("width", w + 4).attr("y", y0 - Math.max(hh, 3)).attr("height", Math.max(hh, 3))
+          .on("mousemove", ev => showTip(ev, `<b>${esc(col.label)}</b> · ${esc(VN)} = ${span(run.v0, run.v1)}<br>${esc(STLABEL[run.status])}${run.why ? "<br><span class='muted'>" + esc(run.why) + "</span>" : ""}`))
+          .on("mouseleave", hideTip);
+      }
+    }
+    const cx = d => x(d.label) + x.bandwidth() / 2, lx = W - m.r + 10, used = [];
+    BOUNDS.forEach(([k, name, cls]) => {
+      const pts = FR.filter(d => typeof d.bounds[k] === "number" && !(k === "upper" && d.bounds.upper_kind === "exact"));
+      if (!pts.length) return;
+      svg.append("path").attr("class", cls).attr("d", d3.line().x(cx).y(d => yv(d.bounds[k]))(pts));
+      used.push([name, cls]);
+    });
+    const dia = d3.symbol().type(d3.symbolDiamond).size(70);
+    FR.forEach(d => {
+      if (d.bounds.upper_kind === "exact" && typeof d.bounds.upper === "number") svg.append("path").attr("class", "mk-max").attr("d", dia).attr("transform", `translate(${cx(d)},${yv(d.bounds.upper)})`);
+      else if (d.best_known != null) { svg.append("path").attr("class", "mk-cand").attr("d", dia).attr("transform", `translate(${cx(d)},${yv(d.best_known)})`);
+        svg.append("text").attr("x", cx(d) + 8).attr("y", yv(d.best_known) - 6).text(`≥ ${fmt(d.best_known)}`); }
+      svg.append("text").attr("x", cx(d)).attr("y", H - m.b + 34).attr("text-anchor", "middle").attr("class", "mono")
+        .style("font-size", "11px").text(`${(100 * d.resolved_fraction).toFixed(d.resolved_fraction > 0.1 ? 0 : 1)}%`);
+    });
+    svg.append("text").attr("x", lx).attr("y", H - m.b + 34).style("font-size", "11px").text("resolved");
+    $("#legend-bounds").innerHTML = used.map(([n, c]) => `<span class="k"><svg viewBox="0 0 22 12"><line x1="0" y1="6" x2="22" y2="6" class="${c}"></line></svg>${n}</span>`).join("")
+      + `<span class="k"><svg viewBox="0 0 22 12"><path d="${dia()}" transform="translate(11,6) scale(.7)" class="mk-max"></path></svg>exact maximum</span>`
+      + `<span class="k"><svg viewBox="0 0 22 12"><path d="${dia()}" transform="translate(11,6) scale(.7)" class="mk-cand"></path></svg>largest realized value</span>`;
+  }
+  safely(drawPlane, "#plane");
+
+  // ---------------------------------------------------------- barcodes
+  function drawBarcodes() {
+    if (!FR.length) return;
+    const W = 1000, rowH = 34, m = { l: 150, r: 20, t: 8 }, H = m.t + FR.length * (rowH + 22) + 10;
+    const svg = d3.select("#barcodes").append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", "Barcode per size");
+    FR.forEach((d, i) => {
+      const y0 = m.t + i * (rowH + 22), x = d3.scaleLinear().domain([d.lo, d.hi + d.step]).range([m.l, W - m.r]);
+      svg.append("text").attr("x", 0).attr("y", y0 + 14).attr("class", "lbl-strong").text(d.label);
+      svg.append("text").attr("x", 0).attr("y", y0 + 30).style("font-size", "11px").text(`${fmt(d.admissible)} values · ${(100 * d.resolved_fraction).toFixed(1)}%`);
+      const g = svg.append("g");
+      if (d.bins) {
+        d.bins.forEach(b => { const tot = ORDER.reduce((s, k) => s + (b.counts[k] || 0), 0); if (!tot) return;
+          const x0 = x(b.v0), w = Math.max(x(b.v1 + d.step) - x0, 0.8); let acc = 0;
+          ORDER.forEach(k => { const v = (b.counts[k] || 0) / tot; if (!v) return;
+            g.append("rect").attr("x", x0).attr("width", w).attr("y", y0 + acc * rowH).attr("height", Math.max(v * rowH, 0.6)).attr("class", "st-" + k); acc += v; });
+          g.append("rect").attr("class", "hit").attr("x", x0).attr("width", Math.max(w, 2)).attr("y", y0).attr("height", rowH)
+            .on("mousemove", ev => showTip(ev, `<b>${esc(d.label)}</b> · ${esc(VN)} ∈ [${fmt(b.v0)}, ${fmt(b.v1)}]<br>` + ORDER.filter(k => b.counts[k]).map(k => `${esc(STLABEL[k])}: ${fmt(b.counts[k])}`).join("<br>"))).on("mouseleave", hideTip); });
+      } else {
+        d.runs.forEach(run => {
+          const x0 = x(run.v0), w = Math.max(x(run.v1 + d.step) - x0, run.status === "realized" ? 1.2 : 0.6);
+          g.append("rect").attr("x", x0).attr("y", y0).attr("width", w).attr("height", rowH).attr("class", "st-" + run.status)
+            .on("mousemove", ev => showTip(ev, `<b>${esc(d.label)}</b> · ${esc(VN)} = ${span(run.v0, run.v1)}<br>${esc(STLABEL[run.status])}${run.why ? "<br><span class='muted'>" + esc(run.why) + "</span>" : ""}`))
+            .on("mouseleave", hideTip);
+        });
+      }
+      svg.append("g").attr("class", "axis").attr("transform", `translate(0,${y0 + rowH})`).call(d3.axisBottom(x).ticks(Math.min(6, Math.max(1, d.hi + d.step - d.lo))).tickFormat(d3.format(",~f")).tickSizeOuter(0));
+    });
+  }
+  safely(drawBarcodes, "#barcodes");
+
+  // ---------------------------------------------------------- stacked frontier bars
+  function drawStack() {
+    if (!FR.length) { $("#stack").innerHTML = `<p class="small muted">No frontier yet.</p>`; return; }
+    const W = 1000, rowH = 26, m = { l: 110, r: 70, t: 6 }, H = m.t + FR.length * (rowH + 10) + 26;
+    const x = d3.scaleLinear().domain([0, 1]).range([m.l, W - m.r]);
+    const svg = d3.select("#stack").append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", "Resolved share by size");
+    FR.forEach((d, i) => {
+      const y0 = m.t + i * (rowH + 10); let acc = 0;
+      svg.append("text").attr("x", 0).attr("y", y0 + 17).attr("class", "lbl-strong").text(d.label);
+      ORDER.forEach(k => {
+        const v = (d.counts[k] || 0) / d.admissible; if (!v) return;
+        svg.append("rect").attr("x", x(acc)).attr("width", Math.max(x(acc + v) - x(acc) - 1, 0.8)).attr("y", y0).attr("height", rowH).attr("class", "st-" + k)
+          .on("mousemove", ev => showTip(ev, `<b>${esc(d.label)}</b><br>${esc(STLABEL[k])}: ${fmt(d.counts[k])} of ${fmt(d.admissible)} values (${(100 * v).toFixed(2)}%)`)).on("mouseleave", hideTip);
+        acc += v;
+      });
+      svg.append("text").attr("x", W - m.r + 8).attr("y", y0 + 17).attr("class", "mono").text(`${(100 * d.resolved_fraction).toFixed(1)}%`);
+    });
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - 22})`).call(d3.axisBottom(x).ticks(5, "%").tickSizeOuter(0));
+  }
+  safely(drawStack, "#stack");
+
+  function drawHistory() {
+    const hist = (DATA.frontier_history || []).filter(p => p.resolved != null);
+    if (!hist.length) { $("#history").innerHTML = `<p class="small muted">No milestones yet (knowledge.json, frontier_history: [{date, size, resolved, why}]).</p>`; return; }
+    const W = 1000, H = 260, m = { l: 56, r: 120, t: 14, b: 32 };
+    // the axis ends a day after the latest milestone or event (not at build time), so old histories stay legible
+    const parse = d3.utcParse("%Y-%m-%d");
+    const latest = d3.max([...hist.map(p => parse(p.date)), ...DATA.events.map(e => new Date(e.ts))]);
+    const end = d3.utcDay.offset(latest || new Date(DATA.generated), 1);
+    let h0 = d3.min(hist, p => parse(p.date)); if (+h0 >= +end) h0 = d3.utcDay.offset(end, -1);
+    const x = d3.scaleUtc().domain([h0, end]).range([m.l, W - m.r]).nice();
+    const y = d3.scaleLinear().domain([0, 1]).range([H - m.b, m.t]);
+    const svg = d3.select("#history").append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", "Resolved share over time");
+    const grid = svg.append("g").attr("class", "grid"); [0, .25, .5, .75, 1].forEach(v => grid.append("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", y(v)).attr("y2", y(v)));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(4, "%").tickSizeOuter(0));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(8).tickSizeOuter(0));
+    const bySize = d3.group(hist, d => d.size);
+    for (const [sz, pts0] of bySize) {
+      const pts = pts0.slice().sort((a, b) => a.date.localeCompare(b.date));
+      const path = []; pts.forEach((p, i) => { const x0 = x(parse(p.date)), x1 = i + 1 < pts.length ? x(parse(pts[i + 1].date)) : x(end); path.push([x0, y(p.resolved)], [x1, y(p.resolved)]); });
+      svg.append("path").attr("d", d3.line()(path)).style("fill", "none").style("stroke", "var(--ink-2)").style("stroke-width", 2);
+      pts.forEach(p => svg.append("circle").attr("cx", x(parse(p.date))).attr("cy", y(p.resolved)).attr("r", 4.5).style("fill", "var(--c-known)").style("stroke", "var(--panel)").style("stroke-width", 2)
+        .on("mousemove", ev => showTip(ev, `<b>${esc(SN)} = ${esc(sz)}</b> · ${p.date}<br>${(100 * p.resolved).toFixed(1)}% resolved<br><span class='muted'>${esc(p.why)}</span>`)).on("mouseleave", hideTip));
+    }
+    const labs = [...bySize.entries()].map(([sz, pts]) => ({ sz, v: pts.slice().sort((a, b) => a.date.localeCompare(b.date)).slice(-1)[0].resolved })).sort((a, b) => b.v - a.v);
+    let lastY = -1e9;
+    labs.forEach(l => { let yy = y(l.v) + 4; if (yy - lastY < 13) yy = lastY + 13; lastY = yy;
+      svg.append("text").attr("x", x(end) + 8).attr("y", yy).text(`${SN} = ${l.sz} · ${(100 * l.v).toFixed(l.v > .1 ? 0 : 1)}%`); });
+  }
+  safely(drawHistory, "#history");
+
+  // ---------------------------------------------------------- optional scatter
+  function drawScatter() {
+    const SC = DATA.scatter;
+    if (!SC || !(SC.points || []).length) { $("#tab-scatter").hidden = true; return; }
+    if (SC.title) { $("#scatter-title").textContent = SC.title; $("#tab-scatter").textContent = SC.tab || "Scatter"; }
+    if (SC.subtitle) $("#scatter-sub").textContent = SC.subtitle;
+    const pts = SC.points, W = 1000, H = 440, m = { l: 64, r: 20, t: 16, b: 40 };
+    const xs = [...new Set(pts.map(p => p.x))].sort((a, b) => a - b), banded = xs.length <= 40;
+    const x = banded ? d3.scaleBand().domain(xs).range([m.l, W - m.r]).padding(0.12) : d3.scaleLinear().domain(d3.extent(xs)).range([m.l, W - m.r]).nice();
+    const ylog = SC.y_scale === "log", ext = d3.extent(pts, p => p.y);
+    const y = (ylog ? d3.scaleLog().domain([Math.max(ext[0], 1e-9) * 0.8, ext[1] * 1.25]) : d3.scaleLinear().domain(ext)).range([H - m.b, m.t]).nice();
+    const svg = d3.select("#scatterplot").append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", `${SC.y_name || "y"} against ${SC.x_name || "x"}`);
+    const grid = svg.append("g").attr("class", "grid"); y.ticks(5).forEach(v => grid.append("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", y(v)).attr("y2", y(v)));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6, ylog ? "~s" : ",~f").tickSizeOuter(0));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickSizeOuter(0));
+    const series = SC.series && SC.series.length ? SC.series : [...new Set(pts.map(p => p.series || ""))].map(k => ({ key: k, label: k || "points" }));
+    const COLORS = ["var(--c-known)", "var(--c-evid)", "var(--c-conj)", "var(--c-door)", "var(--c-wall)"];
+    const SYMS = [d3.symbolCircle, d3.symbolTriangle, d3.symbolDiamond, d3.symbolSquare, d3.symbolCross];
+    const idx = new Map(series.map((s, i) => [s.key, i]));
+    const jit = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 997; return h / 997; };
+    pts.forEach((p, i) => {
+      const k = idx.get(p.series || "") ?? 0, sym = d3.symbol().type(SYMS[k % SYMS.length]).size(30);
+      const gx = banded ? x(p.x) + x.bandwidth() * (0.12 + 0.76 * jit(p.x + ":" + p.y + ":" + i)) : x(p.x);
+      svg.append("path").attr("d", sym).attr("transform", `translate(${gx},${y(ylog ? Math.max(p.y, y.domain()[0]) : p.y)})`)
+        .style("fill", COLORS[k % COLORS.length]).style("fill-opacity", .78)
+        .on("mousemove", ev => showTip(ev, `<b>${esc(SC.x_name || "x")} = ${fmt(p.x)}</b>, ${esc(SC.y_name || "y")} = ${fmt(p.y)}<br>${esc(series[k] ? series[k].label : "")}${p.src ? "<br><span class='muted'>" + esc(p.src) + "</span>" : ""}`)).on("mouseleave", hideTip);
+    });
+    $("#legend-scatter").innerHTML = series.map((s, k) => `<span class="k"><svg viewBox="0 0 22 12"><path d="${d3.symbol().type(SYMS[k % SYMS.length]).size(40)()}" transform="translate(11,6)" style="fill:${COLORS[k % COLORS.length]}"></path></svg>${esc(s.label)}</span>`).join("");
+  }
+  safely(drawScatter, "#scatterplot");
+
+  // ---------------------------------------------------------- knowledge graph
+  const CAT = n => {
+    if (n.kind === "hunch") return "hunch";
+    if (n.kind === "question") return "door";
+    if (n.kind === "deadend" || (n.kind === "conjecture" && n.status === "refuted")) return "wall";
+    if (n.kind === "conjecture") return "conj";
+    if (n.kind === "evidence" || n.tier === "T4") return "evid";
+    if (n.kind === "theorem" || n.kind === "exhaustive") return "known";
+    return "neutral";
+  };
+  const CATL = { known: "Established (T1–T3)", evid: "Evidence (T4)", conj: "Conjecture (T5)", hunch: "Hunch (T6, speculation)", door: "Open door (question)", wall: "Dead end (refuted)", neutral: "Family, method or source" };
+  const CATCLS = { known: "n-known", evid: "n-evid", conj: "n-conj", hunch: "n-conj", door: "n-door", wall: "n-wall", neutral: "n-neutral" };
+  const CATDOT = { known: "d-known", evid: "d-evid", conj: "d-conj", hunch: "d-hunch", door: "d-door", wall: "d-wall", neutral: "d-neutral" };
+  let kgBuilt = false;
+  function buildKG() {
+    if (kgBuilt) return; kgBuilt = true;
+    requestAnimationFrame(buildKGNow);
+  }
+  function buildKGNow() {
+    const wrap0 = $("#kg-wrap"), W0 = wrap0.clientWidth || 900, H0 = wrap0.clientHeight || 560;
+    const nodes = DATA.nodes.map((n, i) => ({ ...n, cat: CAT(n), x: W0 / 2 + 160 * Math.cos(i * 2.39996) * Math.sqrt(i / DATA.nodes.length), y: H0 / 2 + 120 * Math.sin(i * 2.39996) * Math.sqrt(i / DATA.nodes.length) }));
+    const byId = new Map(nodes.map(n => [n.id, n]));
+    const links = [];
+    nodes.forEach(n => (n.links || []).forEach(l => { if (byId.has(l.to)) links.push({ source: n.id, target: l.to, rel: l.rel }); }));
+    const deg = new Map(); links.forEach(l => { deg.set(l.source, (deg.get(l.source) || 0) + 1); deg.set(l.target, (deg.get(l.target) || 0) + 1); });
+    const active = new Set(Object.keys(CATL));
+    const ctr = $("#kg-controls");
+    ctr.innerHTML = Object.entries(CATL).map(([k, l]) => `<label><input type="checkbox" id="kg-${k}" checked> <span class="chip"><span class="d ${CATDOT[k]}"></span>${l}</span></label>`).join("")
+      + `<input type="search" id="kg-search" placeholder="Search titles" aria-label="Search nodes">`;
+    const wrap = $("#kg-wrap"), W = wrap.clientWidth || 900, H = wrap.clientHeight || 560;
+    const svg = d3.select(wrap).append("svg").attr("viewBox", `0 0 ${W} ${H}`);
+    const gAll = svg.append("g");
+    const zoom = d3.zoom().scaleExtent([0.2, 4]).on("zoom", ev => gAll.attr("transform", ev.transform));
+    svg.call(zoom);
+    // small graphs (a new project) get room and labels; large ones stay compact
+    const small = nodes.length <= 60;
+    const link = gAll.append("g").selectAll("line").data(links).join("line").attr("class", "kg-link");
+    const node = gAll.append("g").selectAll("circle").data(nodes).join("circle")
+      .attr("r", d => (small ? 7 : 3.5) + Math.min(8, Math.sqrt(deg.get(d.id) || 0) * 1.6))
+      .attr("class", d => "kg-node " + (d.cat === "hunch" ? "hunch" : CATCLS[d.cat]))
+      .on("mouseenter", (ev, d) => { hover(d); showTip(ev, `<b>${esc(tex(d.title))}</b><br><span class='muted'>${esc(CATL[d.cat])}${d.tier ? " · " + d.tier : ""}${d.status ? " · " + esc(d.status) : ""}</span>`); })
+      .on("mousemove", moveTip).on("mouseleave", () => { hover(null); hideTip(); })
+      .on("click", (ev, d) => detail(d));
+    const short = t => { t = tex(t); return t.length > 30 ? t.slice(0, 29) + "…" : t; };
+    const label = small ? gAll.append("g").selectAll("text").data(nodes).join("text").attr("class", "kg-label").text(d => short(d.title)) : null;
+    // labels sit to the right of their node: collide on a circle around the node and its label
+    const room = Math.min(1, Math.sqrt(20 / nodes.length));
+    nodes.forEach(d => { d.r0 = small ? Math.max(24, Math.min(80, 3.1 * short(d.title).length)) * room : 8; });
+    const sim = d3.forceSimulation(nodes)
+      .force("link", d3.forceLink(links).id(d => d.id).distance(small ? 110 : 34).strength(0.4))
+      .force("charge", d3.forceManyBody().strength(small ? -520 : -46))
+      .force("x", d3.forceX(W / 2).strength(small ? 0.04 : 0.06)).force("y", d3.forceY(H / 2).strength(small ? 0.07 : 0.09))
+      .force("collide", d3.forceCollide(d => d.r0).iterations(3))
+      .stop();
+    // run the layout to rest before the first paint: the same picture on every load
+    sim.tick(400);
+    link.attr("x1", d => d.source.x).attr("y1", d => d.source.y).attr("x2", d => d.target.x).attr("y2", d => d.target.y);
+    node.attr("cx", d => d.x).attr("cy", d => d.y);
+    if (label) label.attr("x", d => d.x + 12).attr("y", d => d.y + 4);
+    // fit everything (labels included) into the view
+    const bx0 = d3.min(nodes, d => d.x) - 24, bx1 = d3.max(nodes, d => d.x + (small ? 12 + 6.2 * short(d.title).length : 0)) + 24;
+    const by0 = d3.min(nodes, d => d.y) - 24, by1 = d3.max(nodes, d => d.y) + 24;
+    const k = Math.min(1.4, W / (bx1 - bx0), H / (by1 - by0));
+    svg.call(zoom.transform, d3.zoomIdentity.translate(W / 2 - k * (bx0 + bx1) / 2, H / 2 - k * (by0 + by1) / 2).scale(k));
+    function visible(d) { const q = ($("#kg-search").value || "").toLowerCase(); return active.has(d.cat) && (!q || (d.title + " " + d.id).toLowerCase().includes(q)); }
+    function refresh() { node.classed("dim", d => !visible(d)); link.style("opacity", l => visible(l.source) && visible(l.target) ? 1 : 0.1);
+      if (label) label.style("opacity", d => visible(d) ? 1 : 0.15); }
+    Object.keys(CATL).forEach(k => $("#kg-" + k).addEventListener("change", e => { e.target.checked ? active.add(k) : active.delete(k); refresh(); }));
+    $("#kg-search").addEventListener("input", refresh);
+    function hover(d) {
+      if (!d) { link.classed("hl", false); refresh(); return; }
+      const nb = new Set([d.id]); links.forEach(l => { if (l.source.id === d.id) nb.add(l.target.id); if (l.target.id === d.id) nb.add(l.source.id); });
+      node.classed("dim", n => !nb.has(n.id)); link.classed("hl", l => l.source.id === d.id || l.target.id === d.id);
+    }
+    function detail(d) {
+      const out = links.filter(l => l.source.id === d.id).map(l => `${esc(l.rel)} → ${esc(l.target.title)}`);
+      const inn = links.filter(l => l.target.id === d.id).map(l => `${esc(l.source.title)} ${esc(l.rel)} this`);
+      const extra = ["why", "next", "vivid", "test", "lesson", "answer", "note"].filter(k => d[k]).map(k => `<dt>${k}</dt><dd>${esc(tex(d[k]))}</dd>`).join("");
+      const rv = d.review ? `<dt>review</dt><dd>${esc(d.review.state)}${d.review.by ? " · " + esc([].concat(d.review.by).join(", ")) : ""}${d.review.verdict ? " · " + esc(d.review.verdict) : ""}</dd>` : "";
+      $("#kg-detail").innerHTML = `<div class="t">${esc(tex(d.title))}</div><div class="meta"><span class="chip"><span class="d ${CATDOT[d.cat]}"></span>${esc(CATL[d.cat])}</span>${d.tier ? `<span class="chip">${d.tier}</span>` : ""}${d.status ? `<span class="chip">${esc(d.status)}</span>` : ""}<span class="chip mono">${esc(d.id)}</span></div>
+        <div>${esc(tex(d.statement))}</div><dl>${extra}${rv}${(d.where || []).length ? `<dt>where</dt><dd>${esc(d.where.join("; "))}</dd>` : ""}${(d.evidence || []).length ? `<dt>evidence</dt><dd>${esc(d.evidence.join("; "))}</dd>` : ""}
+        ${out.length ? `<dt>links</dt><dd>${out.slice(0, 12).join("<br>")}</dd>` : ""}${inn.length ? `<dt>linked from</dt><dd>${inn.slice(0, 12).join("<br>")}</dd>` : ""}</dl>`;
+    }
+  }
+
+  // ---------------------------------------------------------- timeline
+  function drawTimeline() {
+    const ev = DATA.events.slice().sort((a, b) => a.ts.localeCompare(b.ts));
+    $("#evcount").textContent = `${ev.length} events, newest first`;
+    const chip = { proved: "d-known", computed: "d-known", reviewed: "d-known", proposed: "d-conj", refuted: "d-wall", modified: "d-wall", literature: "d-evid", milestone: "d-neutral", monitor: "d-neutral", documented: "d-neutral", question: "d-door", answered: "d-door" };
+    $("#events").innerHTML = ev.slice().reverse().map(e => `<div class="ev"><span class="ts">${e.ts.slice(0, 16).replace("T", " ")}</span><span><span class="chip"><span class="d ${chip[e.type] || "d-neutral"}"></span>${esc(e.type)}</span></span><span>${esc(e.summary)}</span></div>`).join("");
+    if (!ev.length) { $("#cumul").innerHTML = `<p class="small muted">No events yet: log them with lab.py event.</p>`; return; }
+    const groups = { established: ["proved", "computed"], proposed: ["proposed"], refuted: ["refuted", "modified"], literature: ["literature"], reviewed: ["reviewed"] };
+    const cls = { established: "var(--c-known)", proposed: "var(--c-conj)", refuted: "var(--c-wall)", literature: "var(--c-evid)", reviewed: "var(--c-door)" };
+    const lab = { established: "Established (proved, computed)", proposed: "Conjectures and hunches proposed", refuted: "Refuted or modified", literature: "Literature and outside input", reviewed: "Referee verdicts" };
+    $("#legend-events").innerHTML = Object.keys(groups).map(k => `<span class="k"><svg viewBox="0 0 22 12"><line x1="0" y1="6" x2="22" y2="6" style="stroke:${cls[k]};stroke-width:2.5"></line></svg>${lab[k]}</span>`).join("");
+    const W = 1000, H = 300, m = { l: 48, r: 150, t: 12, b: 32 };
+    const t = d => new Date(d.ts);
+    let t0 = d3.min(ev, t), t1 = d3.max(ev, t); if (+t0 === +t1) { t0 = d3.utcDay.offset(t0, -1); t1 = d3.utcDay.offset(t1, 1); }
+    const x = d3.scaleUtc().domain([t0, t1]).range([m.l, W - m.r]).nice();
+    const series = Object.entries(groups).map(([k, types]) => { let c = 0; const pts = [{ ts: x.domain()[0], v: 0 }];
+      ev.forEach(e => { if (types.includes(e.type)) { c += 1; pts.push({ ts: t(e), v: c }); } }); pts.push({ ts: x.domain()[1], v: c }); return { k, pts, c }; });
+    const y = d3.scaleLinear().domain([0, d3.max(series, s => s.c) + 1]).range([H - m.b, m.t]);
+    const svg = d3.select("#cumul").append("svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img").attr("aria-label", "Cumulative discoveries");
+    const grid = svg.append("g").attr("class", "grid"); y.ticks(5).forEach(v => grid.append("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", y(v)).attr("y2", y(v)));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickSizeOuter(0));
+    svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(8).tickSizeOuter(0));
+    let lastY = -1e9;
+    series.filter(s => s.c).sort((a, b) => b.c - a.c).forEach(s => {
+      svg.append("path").attr("d", d3.line().curve(d3.curveStepAfter).x(p => x(p.ts)).y(p => y(p.v))(s.pts)).style("fill", "none").style("stroke", cls[s.k]).style("stroke-width", 2.5);
+      let yy = y(s.c) + 4; if (yy - lastY < 14) yy = lastY + 14; lastY = yy;
+      svg.append("text").attr("x", W - m.r + 8).attr("y", yy).text(`${s.c} ${s.k}`);
+    });
+  }
+  safely(drawTimeline, "#cumul");
+
+  // ---------------------------------------------------------- board
+  function card(n, cls) {
+    const extra = ["why", "next", "vivid", "test", "lesson", "answer", "note"].filter(k => n[k]).map(k => `<dt>${k}</dt><dd>${esc(tex(n[k]))}</dd>`).join("");
+    const ev = (n.evidence || []).length ? `<dt>evidence</dt><dd>${esc(n.evidence.join("; "))}</dd>` : "";
+    return `<div class="card ${cls}"><div class="t">${esc(tex(n.title))}</div><div class="meta">${n.tier ? `<span class="chip">${n.tier}</span>` : ""}${n.status ? `<span class="chip">${esc(n.status)}</span>` : ""}<span class="chip mono">${esc(n.id)}</span></div><div>${esc(tex(n.statement))}</div>${extra || ev ? `<dl>${extra}${ev}</dl>` : ""}</div>`;
+  }
+  function drawBoard() {
+    const N = DATA.nodes;
+    const cols = [
+      ["Open doors", "d-door", "Questions whose answer would open a new corridor.", N.filter(n => n.kind === "question" && n.status !== "answered"), ""],
+      ["Conjectures", "d-conj", "Bold, testable predictions (open or modified).", N.filter(n => n.kind === "conjecture" && n.status !== "refuted" && n.status !== "proved"), ""],
+      ["Hunches", "d-hunch", "Speculation, kept vivid on purpose. Not claims.", N.filter(n => n.kind === "hunch" && n.status !== "dropped"), "hunch"],
+      ["Dead ends", "d-wall", "Refuted claims, with the lesson each one taught.", N.filter(n => n.kind === "deadend" || (n.kind === "conjecture" && n.status === "refuted") || (n.kind === "hunch" && n.status === "dropped")), "dead"],
+      ["Families", "d-neutral", "Named families of examples, with what is known about them.", N.filter(n => n.kind === "family"), ""]];
+    $("#boardcols").innerHTML = cols.map(([h, dot, p, items, cls]) => `<div class="col"><h3><span class="chip"><span class="d ${dot}"></span>${items.length}</span>${h}</h3><p>${p}</p>${items.map(n => card(n, cls)).join("")}</div>`).join("");
+  }
+  safely(drawBoard, "#boardcols");
+
+  // ---------------------------------------------------------- state of the art
+  function drawSota() {
+    const SO = DATA.sota; if (!SO) return;
+    const KC = { proved: ["var(--c-known)", "proved"], exhaustive: ["var(--c-evid)", "exhaustive or certified computation"], computed: ["var(--c-evid)", "computed"],
+      partial: ["var(--c-door)", "partial"], conjecture: ["var(--c-conj)", "conjecture"], refuted: ["var(--c-wall)", "refuted or counterexample"] };
+    const kindOf = e => KC[e.kind] ? e.kind : /conjecture/.test(e.status) ? "conjecture" : /counterexample|false|refuted/.test(e.status) ? "refuted"
+      : /partial|lower bound/.test(e.status) ? "partial" : /exhaustive|certified/.test(e.status) ? "exhaustive" : /computed/.test(e.status) ? "computed" : "proved";
+    const legend = `<div class="legend">${Object.entries(KC).map(([k, [c, l]]) => `<span class="k"><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${c}"></span>${l}</span>`).join("")}</div>`;
+    $("#sota-body").innerHTML = legend + SO.groups.map(g => {
+      const rows = SO.entries.filter(e => e.group === g); if (!rows.length) return "";
+      return `<h3 style="margin:18px 0 6px">${esc(g)}</h3><div class="tablewrap"><table><thead><tr><th>class</th><th>best known result</th><th>status</th><th>proof</th><th>updated</th><th>previously</th></tr></thead><tbody>` +
+        rows.map(e => `<tr><td>${esc(e.cls)}</td><td>${esc(e.result)}</td><td><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${KC[kindOf(e)][0]};margin-right:6px"></span>${esc(e.status)}</td>` +
+          `<td class="mono small">${esc([(e.refs || []).join(", "), (e.lit || []).join(", ")].filter(x => x).join(" · "))}</td><td class="mono small" style="white-space:nowrap">${esc(e.updated)}</td>` +
+          `<td class="small muted">${(e.previous || []).map(p => esc(p.date + ": " + p.was)).join("<br>") || "–"}</td></tr>`).join("") + `</tbody></table></div>`;
+    }).join("");
+  }
+  safely(drawSota, "#sota-body");
+
+  // ---------------------------------------------------------- tables
+  function drawTables() {
+    $("#t-frontier").innerHTML = `<thead><tr><th>${esc(SN)}</th><th class="num">admissible</th><th class="num">realized</th><th class="num">impossible</th><th class="num">conditional</th><th class="num">conj. impossible</th><th class="num">unknown</th><th class="num">resolved</th><th>bounds</th></tr></thead><tbody>`
+      + FR.map(d => `<tr><td>${esc(d.label)}</td><td class="num">${fmt(d.admissible)}</td><td class="num">${fmt(d.counts.realized || 0)}</td><td class="num">${fmt(d.counts.impossible || 0)}</td><td class="num">${fmt(d.counts["gap-conditional"] || 0)}</td><td class="num">${fmt(d.counts["conj-impossible"] || 0)}</td><td class="num">${fmt(d.counts.unknown || 0)}</td><td class="num">${(100 * d.resolved_fraction).toFixed(1)}%</td><td class="small">${esc(Object.entries(d.bounds).map(([k, v]) => k + " " + v).join(", "))}</td></tr>`).join("")
+      + `</tbody>`;
+    const kinds = ["all", ...new Set(DATA.nodes.map(n => n.kind))];
+    const sel = $("#t-kind"); sel.innerHTML = kinds.map(k => `<option value="${k}">${k}</option>`).join("");
+    const render = () => { const k = sel.value; const rows = DATA.nodes.filter(n => k === "all" || n.kind === k);
+      $("#t-nodes").innerHTML = `<thead><tr><th>id</th><th>kind</th><th>tier</th><th>status</th><th>review</th><th>title</th></tr></thead><tbody>` + rows.map(n => `<tr><td class="mono">${esc(n.id)}</td><td>${esc(n.kind)}</td><td>${esc(n.tier || "")}</td><td>${esc(n.status || "")}</td><td>${esc((n.review || {}).state || "")}</td><td>${esc(tex(n.title))}</td></tr>`).join("") + `</tbody>`; };
+    sel.addEventListener("change", render); render();
+  }
+  safely(drawTables, "#t-frontier");
+
+  // ---------------------------------------------------------- tabs
+  const tabs = [...document.querySelectorAll('nav.tabs button')].filter(b => !b.hidden);
+  function select(id) {
+    tabs.forEach(b => { const on = b.getAttribute("aria-controls") === id; b.setAttribute("aria-selected", on); document.getElementById(b.getAttribute("aria-controls")).hidden = !on; });
+    if (id === "graph") buildKG();
+    try { localStorage.setItem("labyrinth-tab", id); } catch (e) {}
+  }
+  tabs.forEach(b => b.addEventListener("click", () => { select(b.getAttribute("aria-controls")); history.replaceState(null, "", "#" + b.getAttribute("aria-controls")); }));
+  // ?tab=<id> (no scroll jump) or #<id> opens a tab directly; otherwise the last tab used.
+  let start = new URLSearchParams(location.search).get("tab") || (location.hash || "").slice(1);
+  if (!tabs.some(b => b.getAttribute("aria-controls") === start)) { try { start = localStorage.getItem("labyrinth-tab") || "map"; } catch (e) { start = "map"; } }
+  if (!tabs.some(b => b.getAttribute("aria-controls") === start)) start = "map";
+  select(start);
+})();
+</script>

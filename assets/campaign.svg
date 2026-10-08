@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" role="img" aria-labelledby="t d">
+<title id="t">Campaigns of agents</title>
+<desc id="d">A pipeline: attack agents fed by a literature agent produce reports, saved verbatim; referees with their own code return verdicts; writers draft text and exact edits on a copy; the coordinator reviews, integrates and commits.</desc>
+<style>
+svg { --bg:#EEF1F5;--panel:#F7F8FA;--card:#FFFFFF;--ink:#17202B;--ink2:#465163;--ink3:#6F7A8C;--rule:#D3D9E2;--fog:#E2E6EC;--fog2:#CFD6DF;--neutral:#939DAC;--known:#1F5FA6;--wall:#B8462A;--evid:#00897B;--door:#A87400;--conj:#7A4FB5;--hunch:#D0508F; }
+@media (prefers-color-scheme: dark) { svg { --bg:#0B0F14;--panel:#10151C;--card:#141B24;--ink:#E6EBF2;--ink2:#AEB8C7;--ink3:#808B9C;--rule:#263041;--fog:#1A212B;--fog2:#242D39;--neutral:#6E7989;--known:#4A8CDA;--wall:#D2603C;--evid:#11A392;--door:#B5821A;--conj:#9670E2;--hunch:#E45A9C; } }
+.bg { fill: var(--bg); } .panel { fill: var(--panel); stroke: var(--rule); } .card { fill: var(--card); stroke: var(--rule); }
+.ink { fill: var(--ink); } .ink2 { fill: var(--ink2); } .ink3 { fill: var(--ink3); }
+.serif { font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif; } .sans { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; } .mono { font-family: SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+.f-known { fill: var(--known); } .f-wall { fill: var(--wall); } .f-evid { fill: var(--evid); } .f-door { fill: var(--door); }
+.f-conj { fill: var(--conj); } .f-hunch { fill: var(--hunch); } .f-neutral { fill: var(--neutral); }
+.s-known { stroke: var(--known); } .s-wall { stroke: var(--wall); } .s-evid { stroke: var(--evid); } .s-door { stroke: var(--door); }
+.s-conj { stroke: var(--conj); } .s-hunch { stroke: var(--hunch); } .s-ink { stroke: var(--ink); } .s-ink3 { stroke: var(--ink3); }
+.s-rule { stroke: var(--rule); } .s-neutral { stroke: var(--neutral); }
+
+</style>
+<defs>
+  <pattern id="hatch-wall" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="7" height="7" style="fill: var(--panel)"/><line x1="0" y1="0" x2="0" y2="7" style="stroke: var(--wall); stroke-width: 3.2"/>
+  </pattern>
+  <pattern id="fogdots" width="9" height="9" patternUnits="userSpaceOnUse">
+    <rect width="9" height="9" style="fill: var(--fog)"/><circle cx="2.5" cy="3" r="0.9" style="fill: var(--fog2)"/><circle cx="7" cy="7.5" r="0.9" style="fill: var(--fog2)"/>
+  </pattern>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: var(--ink3)"/>
+  </marker>
+  <marker id="arrow-known" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: var(--known)"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="1200" height="600" rx="28"/>
+<text x="60.0" y="70.0" class="ink serif" font-size="34" font-weight="700" text-anchor="start" >Campaigns: scaling the loop with agents</text>
+<text x="60.0" y="102.0" class="ink2 sans" font-size="17" font-weight="400" text-anchor="start" >Many attackers, one referee per report, writers on copies, one coordinator who owns the canonical text.</text>
+<rect x="60" y="190" width="200" height="250" rx="16" class="card" stroke-width="1.5"/>
+<rect x="60" y="190" width="200" height="10" rx="5" class="f-known"/>
+<text x="78.0" y="236.0" class="ink sans" font-size="18" font-weight="700" text-anchor="start" >Attack agents</text>
+<rect x="78" y="256" width="58" height="40" rx="7" class="panel s-known" stroke-width="1.6"/>
+<line x1="88" y1="270" x2="124" y2="270" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="88" y1="281" x2="116" y2="281" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<rect x="88" y="264" width="58" height="40" rx="7" class="panel s-known" stroke-width="1.6"/>
+<line x1="98" y1="278" x2="134" y2="278" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="98" y1="289" x2="126" y2="289" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<rect x="98" y="272" width="58" height="40" rx="7" class="panel s-known" stroke-width="1.6"/>
+<line x1="108" y1="286" x2="144" y2="286" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="108" y1="297" x2="136" y2="297" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<text x="78.0" y="350.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· ≥ 5 perspectives each</text>
+<text x="78.0" y="376.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· closed routes listed</text>
+<text x="78.0" y="402.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· status labels</text>
+<line x1="264" y1="282" x2="282" y2="282" class="s-ink3" stroke-width="2.4" marker-end="url(#arrow)"/>
+<rect x="286" y="190" width="200" height="250" rx="16" class="card" stroke-width="1.5"/>
+<rect x="286" y="190" width="200" height="10" rx="5" class="f-neutral"/>
+<text x="304.0" y="236.0" class="ink sans" font-size="18" font-weight="700" text-anchor="start" >Reports</text>
+<rect x="304" y="256" width="58" height="40" rx="7" class="panel s-neutral" stroke-width="1.6"/>
+<line x1="314" y1="270" x2="350" y2="270" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="314" y1="281" x2="342" y2="281" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<rect x="314" y="264" width="58" height="40" rx="7" class="panel s-neutral" stroke-width="1.6"/>
+<line x1="324" y1="278" x2="360" y2="278" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="324" y1="289" x2="352" y2="289" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<text x="304.0" y="350.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· saved verbatim</text>
+<text x="304.0" y="376.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· logged “under review”</text>
+<text x="304.0" y="402.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· one directory each</text>
+<line x1="490" y1="282" x2="508" y2="282" class="s-ink3" stroke-width="2.4" marker-end="url(#arrow)"/>
+<rect x="512" y="190" width="200" height="250" rx="16" class="card" stroke-width="1.5"/>
+<rect x="512" y="190" width="200" height="10" rx="5" class="f-door"/>
+<text x="530.0" y="236.0" class="ink sans" font-size="18" font-weight="700" text-anchor="start" >Referees</text>
+<rect x="530" y="256" width="58" height="40" rx="7" class="panel s-door" stroke-width="1.6"/>
+<line x1="540" y1="270" x2="576" y2="270" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="540" y1="281" x2="568" y2="281" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<rect x="540" y="264" width="58" height="40" rx="7" class="panel s-door" stroke-width="1.6"/>
+<line x1="550" y1="278" x2="586" y2="278" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="550" y1="289" x2="578" y2="289" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<rect x="550" y="272" width="58" height="40" rx="7" class="panel s-door" stroke-width="1.6"/>
+<line x1="560" y1="286" x2="596" y2="286" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="560" y1="297" x2="588" y2="297" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<text x="530.0" y="350.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· own code, own reasoning</text>
+<text x="530.0" y="376.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· verdict per item</text>
+<text x="530.0" y="402.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· fixes ready to apply</text>
+<line x1="716" y1="282" x2="734" y2="282" class="s-ink3" stroke-width="2.4" marker-end="url(#arrow)"/>
+<rect x="738" y="190" width="200" height="250" rx="16" class="card" stroke-width="1.5"/>
+<rect x="738" y="190" width="200" height="10" rx="5" class="f-conj"/>
+<text x="756.0" y="236.0" class="ink sans" font-size="18" font-weight="700" text-anchor="start" >Writers</text>
+<rect x="756" y="256" width="58" height="40" rx="7" class="panel s-conj" stroke-width="1.6"/>
+<line x1="766" y1="270" x2="802" y2="270" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="766" y1="281" x2="794" y2="281" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<rect x="766" y="264" width="58" height="40" rx="7" class="panel s-conj" stroke-width="1.6"/>
+<line x1="776" y1="278" x2="812" y2="278" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="776" y1="289" x2="804" y2="289" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<text x="756.0" y="350.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· block + exact edits</text>
+<text x="756.0" y="376.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· tested on a copy</text>
+<text x="756.0" y="402.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· never upgrade a status</text>
+<line x1="942" y1="282" x2="960" y2="282" class="s-ink3" stroke-width="2.4" marker-end="url(#arrow)"/>
+<rect x="964" y="190" width="200" height="250" rx="16" class="card" stroke-width="1.5"/>
+<rect x="964" y="190" width="200" height="10" rx="5" class="f-evid"/>
+<text x="982.0" y="236.0" class="ink sans" font-size="18" font-weight="700" text-anchor="start" >Coordinator</text>
+<rect x="982" y="256" width="58" height="40" rx="7" class="panel s-evid" stroke-width="1.6"/>
+<line x1="992" y1="270" x2="1028" y2="270" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="992" y1="281" x2="1020" y2="281" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<rect x="992" y="264" width="58" height="40" rx="7" class="panel s-evid" stroke-width="1.6"/>
+<line x1="1002" y1="278" x2="1038" y2="278" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<line x1="1002" y1="289" x2="1030" y2="289" class="s-rule" stroke-width="3" stroke-linecap="round"/>
+<text x="982.0" y="350.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· review against verdicts</text>
+<text x="982.0" y="376.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· integrate, update map</text>
+<text x="982.0" y="402.0" class="ink2 sans" font-size="13" font-weight="400" text-anchor="start" >· commit</text>
+<rect x="60" y="128" width="200" height="40" rx="10" class="panel s-evid" stroke-width="1.5"/>
+<text x="76.0" y="154.0" class="sans f-evid" font-size="15" font-weight="700" text-anchor="start" >Literature agent</text>
+<line x1="160.0" y1="170" x2="160.0" y2="186" class="s-ink3" stroke-width="2" marker-end="url(#arrow)"/>
+<text x="170.0" y="182.0" class="ink3 sans" font-size="12" font-weight="400" text-anchor="start" >leads, as they come</text>
+<text x="612.0" y="470.0" class="mono f-door" font-size="12.5" font-weight="600" text-anchor="middle" >ESTABLISHED · WITH CORRECTIONS · GAP · FALSE</text>
+<rect x="60" y="518" width="1104" height="46" rx="12" class="panel" stroke-width="1"/>
+<text x="612.0" y="548.0" class="ink2 sans" font-size="15" font-weight="400" text-anchor="middle" >one owner per file  ·  agents carry no authority  ·  stagger launches  ·  tell every agent about an incident</text>
+</svg>

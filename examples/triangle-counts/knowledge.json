@@ -1,0 +1,163 @@
+{
+ "schema": 1,
+ "meta": {
+  "title": "Triangle counts (example)",
+  "eyebrow": "Example programme · public toy data",
+  "subtitle": "How many triangles can a graph on n vertices have? Blue is realized, rust hatching impossible, dotted grey conjecturally impossible, plain grey still unknown."
+ },
+ "nodes": [
+  {
+   "id": "f.cliques",
+   "kind": "family",
+   "status": "established",
+   "title": "Complete graphs K_n",
+   "statement": "K_n has C(n,3) triangles, the most a graph on n vertices can have.",
+   "links": []
+  },
+  {
+   "id": "th.topband",
+   "kind": "theorem",
+   "tier": "T2",
+   "status": "established",
+   "title": "The top band is empty",
+   "statement": "A graph on n vertices other than K_n has at most C(n,3) - (n-2) triangles.",
+   "note": "Proof: a missing edge uv destroys the n - 2 triangles uvw.",
+   "links": [
+    {
+     "to": "f.cliques",
+     "rel": "uses"
+    }
+   ],
+   "review": {
+    "state": "refereed",
+    "by": [
+     "research/agents/referee-topband"
+    ],
+    "verdict": "ESTABLISHED",
+    "date": "2026-01-09"
+   }
+  },
+  {
+   "id": "m.extend",
+   "kind": "method",
+   "title": "One-vertex extension",
+   "statement": "Every graph on n vertices is a graph G on n - 1 vertices plus a vertex joined to a set S; the new vertex adds e(G[S]) triangles.",
+   "links": []
+  },
+  {
+   "id": "ex.small",
+   "kind": "exhaustive",
+   "tier": "T3",
+   "status": "established",
+   "title": "Exact sets for n <= 7",
+   "statement": "For n <= 7 the triangle counts that occur are exactly those in frontier.json.",
+   "evidence": [
+    "examples/triangle-counts/make_example.py (one-vertex extension of all graphs on n - 1 vertices)"
+   ],
+   "links": [
+    {
+     "to": "m.extend",
+     "rel": "uses"
+    },
+    {
+     "to": "th.topband",
+     "rel": "supports"
+    },
+    {
+     "to": "x.allbelow",
+     "rel": "refutes"
+    }
+   ],
+   "review": {
+    "state": "under-review",
+    "date": "2026-01-12"
+   }
+  },
+  {
+   "id": "x.allbelow",
+   "kind": "deadend",
+   "status": "refuted",
+   "title": "Only the top band is missing",
+   "statement": "Every count from 0 to C(n,3) - (n-2) occurs.",
+   "lesson": "Removing edges destroys triangles in discrete amounts, so gaps also appear below the top band: n = 5 misses 6.",
+   "links": []
+  },
+  {
+   "id": "k.n8",
+   "kind": "conjecture",
+   "tier": "T5",
+   "status": "open",
+   "title": "The gaps for n = 8",
+   "statement": "For n = 8 the counts 37, 42, 43 and 46-49 do not occur.",
+   "test": "Extend all 2^21 graphs on 7 vertices by one vertex: about 2.7e8 subset counts, so vectorize or use a cluster.",
+   "links": [
+    {
+     "to": "ex.small",
+     "rel": "generalizes"
+    }
+   ]
+  },
+  {
+   "id": "h.bands",
+   "kind": "hunch",
+   "tier": "T6",
+   "status": "live",
+   "title": "Gaps come in shifted bands",
+   "statement": "Below the top band, the missing counts form bands that follow K_n minus a few edges.",
+   "vivid": "n = 6 misses 14, 15 and 17-19. K_6 minus one edge has 16 triangles, minus two edges 12 or 13.",
+   "links": [
+    {
+     "to": "k.n8",
+     "rel": "suggests"
+    }
+   ]
+  },
+  {
+   "id": "q.unknown8",
+   "kind": "question",
+   "status": "open",
+   "title": "Six unknown counts for n = 8",
+   "statement": "Do 33, 38, 39, 41, 44 and 45 occur for n = 8?",
+   "next": "A larger sample, or the exhaustive test of k.n8.",
+   "links": [
+    {
+     "to": "k.n8",
+     "rel": "tests"
+    }
+   ]
+  },
+  {
+   "id": "src.kk",
+   "kind": "source",
+   "title": "Kruskal-Katona theorem",
+   "statement": "Gives the largest number of triangles for a given number of edges: the upper boundary of the edges-versus-triangles scatter.",
+   "links": []
+  }
+ ],
+ "frontier_history": [
+  {
+   "date": "2026-01-06",
+   "size": 6,
+   "resolved": 1.0,
+   "why": "exhaustive for n <= 6"
+  },
+  {
+   "date": "2026-01-08",
+   "size": 7,
+   "resolved": 1.0,
+   "why": "one-vertex extension (ex.small)"
+  },
+  {
+   "date": "2026-01-05",
+   "size": 8,
+   "resolved": 0.1404,
+   "why": "K_8, K_8 minus an edge, K_7 plus a vertex, and the top band"
+  },
+  {
+   "date": "2026-01-12",
+   "size": 8,
+   "resolved": 0.7719,
+   "why": "eight sampled graphs on 7 vertices, extended"
+  }
+ ]
+}

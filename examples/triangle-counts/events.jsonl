@@ -1,0 +1,10 @@
+{"ts": "2026-01-05T09:00:00Z", "type": "proposed", "summary": "Only the top band is missing (x.allbelow)", "nodes": ["x.allbelow"], "evidence": []}
+{"ts": "2026-01-05T10:00:00Z", "type": "proved", "summary": "The top band is empty: a missing edge destroys n - 2 triangles", "nodes": ["th.topband"], "evidence": []}
+{"ts": "2026-01-06T11:00:00Z", "type": "computed", "summary": "Exhaustive triangle counts for n <= 6", "nodes": ["ex.small"], "evidence": ["make_example.py"]}
+{"ts": "2026-01-06T11:05:00Z", "type": "refuted", "summary": "x.allbelow is false: n = 5 misses 6 below the top band", "nodes": ["x.allbelow", "ex.small"], "evidence": ["make_example.py"]}
+{"ts": "2026-01-08T15:00:00Z", "type": "computed", "summary": "n = 7 by one-vertex extension of all graphs on 6 vertices (under review)", "nodes": ["ex.small", "m.extend"], "evidence": ["make_example.py"]}
+{"ts": "2026-01-09T08:00:00Z", "type": "reviewed", "summary": "th.topband: ESTABLISHED by an independent referee", "nodes": ["th.topband"], "evidence": ["research/agents/referee-topband/report.md"]}
+{"ts": "2026-01-10T12:00:00Z", "type": "proposed", "summary": "Conjecture k.n8 and hunch h.bands", "nodes": ["k.n8", "h.bands"], "evidence": []}
+{"ts": "2026-01-12T10:00:00Z", "type": "computed", "summary": "n = 8: eight sampled graphs on 7 vertices, extended; six counts still unknown", "nodes": ["k.n8", "q.unknown8"], "evidence": ["make_example.py"]}
+{"ts": "2026-01-12T11:00:00Z", "type": "literature", "summary": "Kruskal-Katona bounds triangles by edges (scatter boundary)", "nodes": ["src.kk"], "evidence": []}
+{"ts": "2026-01-12T12:00:00Z", "type": "milestone", "summary": "n <= 7 fully resolved; n = 8 at 77%", "nodes": ["ex.small"], "evidence": []}

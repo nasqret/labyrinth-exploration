@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 740" width="1200" height="740" role="img" aria-labelledby="t d">
+<title id="t">The loop of labyrinth exploration</title>
+<desc id="d">Seven steps around a map: read the frontier, explore, predict boldly, test and log, referee, update the map, look for shortcuts. Refuted claims become dead ends with lessons; saturation is broken by an escalation ladder.</desc>
+<style>
+svg { --bg:#EEF1F5;--panel:#F7F8FA;--card:#FFFFFF;--ink:#17202B;--ink2:#465163;--ink3:#6F7A8C;--rule:#D3D9E2;--fog:#E2E6EC;--fog2:#CFD6DF;--neutral:#939DAC;--known:#1F5FA6;--wall:#B8462A;--evid:#00897B;--door:#A87400;--conj:#7A4FB5;--hunch:#D0508F; }
+@media (prefers-color-scheme: dark) { svg { --bg:#0B0F14;--panel:#10151C;--card:#141B24;--ink:#E6EBF2;--ink2:#AEB8C7;--ink3:#808B9C;--rule:#263041;--fog:#1A212B;--fog2:#242D39;--neutral:#6E7989;--known:#4A8CDA;--wall:#D2603C;--evid:#11A392;--door:#B5821A;--conj:#9670E2;--hunch:#E45A9C; } }
+.bg { fill: var(--bg); } .panel { fill: var(--panel); stroke: var(--rule); } .card { fill: var(--card); stroke: var(--rule); }
+.ink { fill: var(--ink); } .ink2 { fill: var(--ink2); } .ink3 { fill: var(--ink3); }
+.serif { font-family: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Times New Roman', serif; } .sans { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; } .mono { font-family: SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace; }
+.f-known { fill: var(--known); } .f-wall { fill: var(--wall); } .f-evid { fill: var(--evid); } .f-door { fill: var(--door); }
+.f-conj { fill: var(--conj); } .f-hunch { fill: var(--hunch); } .f-neutral { fill: var(--neutral); }
+.s-known { stroke: var(--known); } .s-wall { stroke: var(--wall); } .s-evid { stroke: var(--evid); } .s-door { stroke: var(--door); }
+.s-conj { stroke: var(--conj); } .s-hunch { stroke: var(--hunch); } .s-ink { stroke: var(--ink); } .s-ink3 { stroke: var(--ink3); }
+.s-rule { stroke: var(--rule); } .s-neutral { stroke: var(--neutral); }
+
+</style>
+<defs>
+  <pattern id="hatch-wall" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+    <rect width="7" height="7" style="fill: var(--panel)"/><line x1="0" y1="0" x2="0" y2="7" style="stroke: var(--wall); stroke-width: 3.2"/>
+  </pattern>
+  <pattern id="fogdots" width="9" height="9" patternUnits="userSpaceOnUse">
+    <rect width="9" height="9" style="fill: var(--fog)"/><circle cx="2.5" cy="3" r="0.9" style="fill: var(--fog2)"/><circle cx="7" cy="7.5" r="0.9" style="fill: var(--fog2)"/>
+  </pattern>
+  <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: var(--ink3)"/>
+  </marker>
+  <marker id="arrow-known" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+    <path d="M0,0 L10,5 L0,10 z" style="fill: var(--known)"/>
+  </marker>
+</defs>
+<rect class="bg" x="0" y="0" width="1200" height="740" rx="28"/>
+<text x="60.0" y="70.0" class="ink serif" font-size="34" font-weight="700" text-anchor="start" >The loop</text>
+<text x="60.0" y="102.0" class="ink2 sans" font-size="17" font-weight="400" text-anchor="start" >One iteration changes the map. A refutation is progress: it turns a corridor into a wall.</text>
+<ellipse cx="600" cy="412" rx="380" ry="222" fill="none" class="s-rule" stroke-width="2" stroke-dasharray="2 7"/>
+<polyline points="701.1,198.0 707.7,199.1 714.2,200.3 720.7,201.5 727.1,202.8 733.5,204.2 739.9,205.6 746.2,207.1 752.5,208.7 758.7,210.3 764.9,212.0 771.0,213.7 777.1,215.6 783.1,217.5 789.0,219.4 794.9,221.4 800.7,223.5 806.5,225.6 812.2,227.8 817.8,230.1 823.4,232.4" fill="none" class="s-ink3" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="949.4,324.7 952.0,328.4 954.6,332.1 957.0,335.9 959.2,339.6 961.4,343.4 963.5,347.2 965.4,351.0 967.2,354.9 968.9,358.7 970.5,362.6 971.9,366.5 973.3,370.4 974.5,374.3 975.6,378.3 976.6,382.2 977.4,386.2 978.1,390.1 978.8,394.1 979.3,398.1 979.6,402.0" fill="none" class="s-ink3" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="934.6,517.2 931.3,520.7 927.9,524.1 924.4,527.6 920.8,531.0 917.1,534.3 913.3,537.6 909.4,540.9 905.4,544.1 901.3,547.3 897.1,550.4 892.8,553.5 888.4,556.6 883.9,559.6 879.3,562.5 874.7,565.4 869.9,568.3 865.1,571.1 860.1,573.8 855.1,576.5 850.0,579.2" fill="none" class="s-ink3" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="667.9,630.4 661.1,631.1 654.4,631.7 647.6,632.2 640.9,632.7 634.1,633.1 627.3,633.4 620.5,633.7 613.6,633.9 606.8,634.0 600.0,634.0 593.2,634.0 586.4,633.9 579.5,633.7 572.7,633.4 565.9,633.1 559.1,632.7 552.4,632.2 545.6,631.7 538.9,631.1 532.1,630.4" fill="none" class="s-ink3" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="350.0,579.2 344.9,576.5 339.9,573.8 334.9,571.1 330.1,568.3 325.3,565.4 320.7,562.5 316.1,559.6 311.6,556.6 307.2,553.5 302.9,550.4 298.7,547.3 294.6,544.1 290.6,540.9 286.7,537.6 282.9,534.3 279.2,531.0 275.6,527.6 272.1,524.1 268.7,520.7 265.4,517.2" fill="none" class="s-ink3" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="220.4,402.0 220.7,398.1 221.2,394.1 221.9,390.1 222.6,386.2 223.4,382.2 224.4,378.3 225.5,374.3 226.7,370.4 228.1,366.5 229.5,362.6 231.1,358.7 232.8,354.9 234.6,351.0 236.5,347.2 238.6,343.4 240.8,339.6 243.0,335.9 245.4,332.1 248.0,328.4 250.6,324.7" fill="none" class="s-ink3" stroke-width="2.2" marker-end="url(#arrow)"/>
+<polyline points="376.6,232.4 382.2,230.1 387.8,227.8 393.5,225.6 399.3,223.5 405.1,221.4 411.0,219.4 416.9,217.5 422.9,215.6 429.0,213.7 435.1,212.0 441.3,210.3 447.5,208.7 453.8,207.1 460.1,205.6 466.5,204.2 472.9,202.8 479.3,201.5 485.8,200.3 492.3,199.1 498.9,198.0" fill="none" class="s-ink3" stroke-width="2.2" marker-end="url(#arrow)"/>
+<ellipse cx="600" cy="412" rx="172" ry="92" class="card" stroke-width="1.5"/>
+<text x="600.0" y="390.0" class="ink serif" font-size="26" font-weight="700" text-anchor="middle" >the map</text>
+<text x="600.0" y="420.0" class="ink2 sans" font-size="15" font-weight="400" text-anchor="middle" >knowledge graph · tiers T1–T6</text>
+<text x="600.0" y="442.0" class="ink2 sans" font-size="15" font-weight="400" text-anchor="middle" >frontier · state of the art</text>
+<text x="600.0" y="464.0" class="ink2 sans" font-size="15" font-weight="400" text-anchor="middle" >event log · dashboard</text>
+<rect x="470.0" y="157.0" width="260" height="66" rx="12" class="card" stroke-width="1.5"/>
+<rect x="470.0" y="157.0" width="6" height="66" rx="3" class="f-known"/>
+<circle cx="498.0" cy="190.0" r="14" class="f-known"/>
+<text x="498.0" y="195.0" class="sans" font-size="15" font-weight="700" text-anchor="middle" style="fill: var(--card)">1</text>
+<text x="522.0" y="186.0" class="ink sans" font-size="16" font-weight="700" text-anchor="start" >Read the frontier</text>
+<text x="522.0" y="207.0" class="ink2 sans" font-size="12.5" font-weight="400" text-anchor="start" >pick 1–3 doors to enter</text>
+<rect x="767.1" y="240.6" width="260" height="66" rx="12" class="card" stroke-width="1.5"/>
+<rect x="767.1" y="240.6" width="6" height="66" rx="3" class="f-evid"/>
+<circle cx="795.1" cy="273.6" r="14" class="f-evid"/>
+<text x="795.1" y="278.6" class="sans" font-size="15" font-weight="700" text-anchor="middle" style="fill: var(--card)">2</text>
+<text x="819.1" y="269.6" class="ink sans" font-size="16" font-weight="700" text-anchor="start" >Explore</text>
+<text x="819.1" y="290.6" class="ink2 sans" font-size="12.5" font-weight="400" text-anchor="start" >literature, code, examples</text>
+<rect x="840.5" y="428.4" width="260" height="66" rx="12" class="card" stroke-width="1.5"/>
+<rect x="840.5" y="428.4" width="6" height="66" rx="3" class="f-conj"/>
+<circle cx="868.5" cy="461.4" r="14" class="f-conj"/>
+<text x="868.5" y="466.4" class="sans" font-size="15" font-weight="700" text-anchor="middle" style="fill: var(--card)">3</text>
+<text x="892.5" y="457.4" class="ink sans" font-size="16" font-weight="700" text-anchor="start" >Predict boldly</text>
+<text x="892.5" y="478.4" class="ink2 sans" font-size="12.5" font-weight="400" text-anchor="start" >a conjecture with its test</text>
+<rect x="634.9" y="579.0" width="260" height="66" rx="12" class="card" stroke-width="1.5"/>
+<rect x="634.9" y="579.0" width="6" height="66" rx="3" class="f-known"/>
+<circle cx="662.9" cy="612.0" r="14" class="f-known"/>
+<text x="662.9" y="617.0" class="sans" font-size="15" font-weight="700" text-anchor="middle" style="fill: var(--card)">4</text>
+<text x="686.9" y="608.0" class="ink sans" font-size="16" font-weight="700" text-anchor="start" >Test and log</text>
+<text x="686.9" y="629.0" class="ink2 sans" font-size="12.5" font-weight="400" text-anchor="start" >every outcome is an event</text>
+<rect x="305.1" y="579.0" width="260" height="66" rx="12" class="card" stroke-width="1.5"/>
+<rect x="305.1" y="579.0" width="6" height="66" rx="3" class="f-door"/>
+<circle cx="333.1" cy="612.0" r="14" class="f-door"/>
+<text x="333.1" y="617.0" class="sans" font-size="15" font-weight="700" text-anchor="middle" style="fill: var(--card)">5</text>
+<text x="357.1" y="608.0" class="ink sans" font-size="16" font-weight="700" text-anchor="start" >Referee</text>
+<text x="357.1" y="629.0" class="ink2 sans" font-size="12.5" font-weight="400" text-anchor="start" >own code; a verdict per item</text>
+<rect x="99.5" y="428.4" width="260" height="66" rx="12" class="card" stroke-width="1.5"/>
+<rect x="99.5" y="428.4" width="6" height="66" rx="3" class="f-wall"/>
+<circle cx="127.5" cy="461.4" r="14" class="f-wall"/>
+<text x="127.5" y="466.4" class="sans" font-size="15" font-weight="700" text-anchor="middle" style="fill: var(--card)">6</text>
+<text x="151.5" y="457.4" class="ink sans" font-size="16" font-weight="700" text-anchor="start" >Update the map</text>
+<text x="151.5" y="478.4" class="ink2 sans" font-size="12.5" font-weight="400" text-anchor="start" >a dead end, or a new tier</text>
+<rect x="172.9" y="240.6" width="260" height="66" rx="12" class="card" stroke-width="1.5"/>
+<rect x="172.9" y="240.6" width="6" height="66" rx="3" class="f-evid"/>
+<circle cx="200.9" cy="273.6" r="14" class="f-evid"/>
+<text x="200.9" y="278.6" class="sans" font-size="15" font-weight="700" text-anchor="middle" style="fill: var(--card)">7</text>
+<text x="224.9" y="269.6" class="ink sans" font-size="16" font-weight="700" text-anchor="start" >Look for shortcuts</text>
+<text x="224.9" y="290.6" class="ink2 sans" font-size="12.5" font-weight="400" text-anchor="start" >what can a new lemma remove?</text>
+<rect x="36" y="626" width="262" height="90" rx="12" class="panel" stroke-width="1"/>
+<text x="52.0" y="654.0" class="sans" font-size="15" font-weight="700" text-anchor="start" style="fill: var(--wall)">Refuted?</text>
+<text x="52.0" y="677.0" class="ink2 sans" font-size="14" font-weight="400" text-anchor="start" >A dead end with its lesson,</text>
+<text x="52.0" y="698.0" class="ink2 sans" font-size="14" font-weight="400" text-anchor="start" >then the modified statement.</text>
+<rect x="902" y="626" width="262" height="90" rx="12" class="panel" stroke-width="1"/>
+<text x="918.0" y="654.0" class="sans" font-size="15" font-weight="700" text-anchor="start" style="fill: var(--conj)">Saturated?</text>
+<text x="918.0" y="677.0" class="ink2 sans" font-size="14" font-weight="400" text-anchor="start" >Climb the ladder: new tools,</text>
+<text x="918.0" y="698.0" class="ink2 sans" font-size="14" font-weight="400" text-anchor="start" >extremes, … a broad attack.</text>
+</svg>

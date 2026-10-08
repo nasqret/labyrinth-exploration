@@ -1,0 +1,61 @@
+{
+ "about": "Example state-of-the-art table: best known result per question, with history.",
+ "groups": [
+  "Triangle counts"
+ ],
+ "entries": [
+  {
+   "id": "tc-exact",
+   "group": "Triangle counts",
+   "cls": "graphs on n vertices",
+   "result": "the exact set of triangle counts for n <= 7",
+   "status": "exhaustive (under review)",
+   "refs": [
+    "ex.small"
+   ],
+   "lit": [],
+   "updated": "2026-01-08",
+   "previous": [
+    {
+     "date": "2026-01-06",
+     "was": "the exact set for n <= 6"
+    }
+   ],
+   "kind": "exhaustive"
+  },
+  {
+   "id": "tc-top",
+   "group": "Triangle counts",
+   "cls": "graphs on n vertices other than K_n",
+   "result": "at most C(n,3) - (n-2) triangles",
+   "status": "proved (1 independent referee)",
+   "refs": [
+    "th.topband"
+   ],
+   "lit": [],
+   "updated": "2026-01-09",
+   "previous": [],
+   "kind": "proved"
+  },
+  {
+   "id": "tc-n8",
+   "group": "Triangle counts",
+   "cls": "graphs on 8 vertices",
+   "result": "39 of 57 counts realized, 5 impossible, 7 conjecturally impossible, 6 unknown",
+   "status": "partial",
+   "refs": [
+    "k.n8",
+    "q.unknown8"
+   ],
+   "lit": [],
+   "updated": "2026-01-12",
+   "previous": [
+    {
+     "date": "2026-01-05",
+     "was": "3 counts realized (named graphs), 5 impossible"
+    }
+   ],
+   "kind": "partial"
+  }
+ ]
+}
