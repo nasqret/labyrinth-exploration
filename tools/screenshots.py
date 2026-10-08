@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Build the triangle-counts example in a temporary directory and screenshot dashboard tabs into assets/.
 
-    python3 tools/screenshots.py [tab ...]  # needs Google Chrome or Chromium (set CHROME=/path/to/chrome)
+    python3 tools/screenshots.py [tab ... | social]  # needs Google Chrome or Chromium (set CHROME=/path/to/chrome)
 
 Local tool, not run in CI. Rerun when the dashboard or the example changes, and commit the PNGs.
 """
@@ -54,14 +54,33 @@ def shot(index, tab, out, height, hide_header, profile):
     print("wrote", ASSETS / out)
 
 
+def social(tmp):
+    """assets/social-preview.png: the hero graphic on a 1280 x 640 card (GitHub's social preview size).
+    GitHub has no API for it: upload the file under Settings, Social preview."""
+    page = tmp / "social.html"
+    page.write_text('<html><body style="margin:0;background:#EEF1F5;display:flex;align-items:center;'
+                    f'justify-content:center;height:640px"><img src="{(ASSETS / "hero.svg").as_uri()}"></body></html>')
+    cmd = [CHROME, "--headless=new", "--disable-gpu", "--no-first-run", "--disable-background-networking",
+           f"--user-data-dir={tmp / 'profile'}", "--hide-scrollbars", "--window-size=1280,640",
+           "--virtual-time-budget=3000", f"--screenshot={ASSETS / 'social-preview.png'}", page.as_uri()]
+    try:
+        subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=60)
+    except subprocess.TimeoutExpired:
+        pass
+    print("wrote", ASSETS / "social-preview.png")
+
+
 def main():
     tmp = Path(tempfile.mkdtemp())
     try:
-        index = build(tmp)
-        wanted = set(sys.argv[1:])            # optional: only these tabs, e.g. "graph frontier"
-        for tab, out, height, hide in SHOTS:
-            if not wanted or tab in wanted:
-                shot(index, tab, out, height, hide, tmp / "profile")
+        wanted = set(sys.argv[1:])            # optional: only these, e.g. "graph frontier" or "social"
+        if not wanted or "social" in wanted:
+            social(tmp)
+        if wanted - {"social"} or not wanted:
+            index = build(tmp)
+            for tab, out, height, hide in SHOTS:
+                if not wanted or tab in wanted:
+                    shot(index, tab, out, height, hide, tmp / "profile")
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 

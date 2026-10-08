@@ -6,6 +6,8 @@ interface.
 
 ## [Unreleased]
 
+- `assets/social-preview.png` for GitHub's social preview, made by `tools/screenshots.py social`.
+
 ## [1.0.0] — 2026-10-08
 
 First public release.

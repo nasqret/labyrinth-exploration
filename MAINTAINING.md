@@ -23,7 +23,10 @@ through the same steps.
 3. **Regenerate** what the change affects:
    - the graphics: `python3 tools/make_graphics.py`, after editing the generator;
    - the screenshots: `python3 tools/screenshots.py`, after changing the dashboard or the
-     example (needs Chrome).
+     example (needs Chrome);
+   - the social preview: `python3 tools/screenshots.py social`, after changing the hero
+     graphic. Then upload `assets/social-preview.png` again under the repository's
+     Settings, Social preview (GitHub has no API for it).
 4. **Record** the change under "Unreleased" in [`CHANGELOG.md`](CHANGELOG.md).
 5. **Commit and push.** CI runs the same tests on every push.
 
