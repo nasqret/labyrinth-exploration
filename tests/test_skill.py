@@ -10,7 +10,7 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
-DOCS = ["README.md", "docs/tutorial.md", "examples/README.md", "examples/prompts.md", "MAINTAINING.md",
+DOCS = ["README.md", "docs/tutorial.md", "docs/codex-testing.md", "examples/README.md", "examples/prompts.md", "MAINTAINING.md",
         "CHANGELOG.md", "examples/triangle-counts/README.md"]
 PROJECT_SIDE = {"tools/blueprint_data.py"}   # paths inside the user's project, not in this repository
 SKILL_TEXTS = ["SKILL.md", *[str(p.relative_to(REPO)) for p in sorted((REPO / "references").glob("*.md"))],
@@ -54,7 +54,7 @@ class Frontmatter(unittest.TestCase):
 
 class References(unittest.TestCase):
     def test_paths_mentioned_in_the_skill_exist(self):
-        pat = re.compile(r"`((?:references|templates|examples|docs|tools|tests)/[A-Za-z0-9_./-]+)`")
+        pat = re.compile(r"`((?:agents|references|templates|examples|docs|tools|tests)/[A-Za-z0-9_./-]+)`")
         for f in SKILL_TEXTS + DOCS:
             for path in pat.findall((REPO / f).read_text()):
                 path = path.split("#")[0].rstrip("/.")
@@ -64,7 +64,7 @@ class References(unittest.TestCase):
 
     def test_relative_links_resolve(self):
         link = re.compile(r"\]\(([^)\s]+)\)|<img[^>]+src=\"([^\"]+)\"|<a href=\"([^\"]+)\"")
-        for f in DOCS:
+        for f in DOCS + SKILL_TEXTS:
             base = (REPO / f).parent
             for groups in link.findall((REPO / f).read_text()):
                 target = next(g for g in groups if g)
@@ -75,7 +75,7 @@ class References(unittest.TestCase):
 
     def test_no_personal_paths(self):
         for p in REPO.rglob("*"):
-            if p.is_file() and ".git" not in p.parts and p.suffix in (".md", ".py", ".json", ".jsonl", ".html", ".svg", ".yml"):
+            if p.is_file() and ".git" not in p.parts and p.suffix in (".md", ".py", ".json", ".jsonl", ".html", ".svg", ".yml", ".yaml"):
                 self.assertNotRegex(p.read_text(errors="ignore"), r"/Users/[a-z]|/home/[a-z]", f"personal path in {p}")
 
 

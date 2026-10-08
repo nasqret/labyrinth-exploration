@@ -6,6 +6,16 @@ interface.
 
 ## [Unreleased]
 
+- Native Codex support alongside Claude Code: interface metadata, discovery and invocation
+  instructions, a client guide for subagents and permissions, and shared tutorial prompts.
+- Dashboard handoffs can remain local or use an authorized private destination; client
+  memory updates require the user's request, while project context stays in project files.
+- Codex metadata validation and an opt-in native loader smoke test, with a reproducible
+  procedure for isolated live research-workflow tests.
+- Clarify that the public example's review metadata is illustrative and that a demo build
+  does not supply its missing referee reports.
+- Clarify the distinction between independently validating certificate code and replaying
+  a new size, while retaining the T3 validation requirement and independent-review gate.
 - `assets/social-preview.png` for GitHub's social preview, made by `tools/screenshots.py social`.
 
 ## [1.0.0] — 2026-10-08

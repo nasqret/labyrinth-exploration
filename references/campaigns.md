@@ -22,8 +22,9 @@ them.
 - **Concurrency.** The session's usage limit binds before the machine does: about ten
   concurrent agents hit it twice in one night. Stagger the launches. Start the attack
   agents first, launch a referee as each report arrives, and start writers after the
-  referees. After a limit reset, resume agents with SendMessage instead of starting them
-  again.
+  referees. After a limit reset, resume existing agents with the client's message or
+  follow-up tools when available. After a restart, recover from saved reports before
+  starting replacements. In Codex, read `references/codex.md` for native orchestration.
 
 ## Roles and directories
 
@@ -39,7 +40,8 @@ them.
 **One owner per file.** Name every draft after its agent. Never use generic scratch names
 such as `report_draft.txt`: the scratchpad is shared by all agents of a session, and in one
 campaign a referee overwrote an attack agent's draft there. Forward literature leads to the
-relevant attack agents as they come in (SendMessage); do not wait for the sweep to end.
+relevant attack agents as they come in through the client's messaging tools; do not wait
+for the sweep to end.
 When an incident hits one agent (a filled quota, held jobs, a shared limit), tell every
 running agent at once.
 
@@ -154,7 +156,8 @@ Template: `templates/briefs/writer.md`.
 6. **For long runs, commit in two stages**: first the agent's data and the events
    ("merged, under independent review"), then, after the verdict, the notes
    ("independently refereed"). The notes change only after the verdict.
-7. Update the journal and memory, and republish the dashboard privately.
+7. Update the project journal and memory, and refresh the local dashboard or the
+   authorized private deployment.
 
 ## Permission boundaries
 

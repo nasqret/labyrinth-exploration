@@ -52,10 +52,15 @@ imported, not copied. Their tier, status and review may be overridden in
 | T6 | hunch, explicitly not a claim | a direction only |
 
 Referees change the review state, not the tier. A result of the programme becomes T1 only
-once it is published. A certificate run that exists once stays T3 with its review state
-saying that an independent second run is open. Keep the review provenance in the status
-text as well ("proved (2 independent AI referees; human check pending)"), because that
-text is what readers of the state-of-the-art table see.
+once it is published. A certificate run from **independently validated code** can be T3
+even if it has run only once at a new size: its review state records that a same-size
+independent second run is still open. State the sizes and scope of the prior code
+validation. An exhaustive output from unchecked code stays T4 under review until that
+validation exists. A T3 label alone does not establish that the current result has been
+refereed. Keep the review provenance in the status text as well ("proved (2 independent
+AI referees; human check pending)"), because that text is what readers of the
+state-of-the-art table see. The public example's review labels illustrate this data
+contract; they do not supply the missing verification reports.
 
 ## Agent labels, tiers and events
 

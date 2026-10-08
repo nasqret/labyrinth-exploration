@@ -1,0 +1,7 @@
+interface:
+  display_name: "Labyrinth Exploration"
+  short_description: "Map research frontiers with independently reviewed evidence"
+  default_prompt: "Use $labyrinth-exploration to map this research programme and choose the next experiment."
+
+policy:
+  allow_implicit_invocation: true

@@ -1,14 +1,16 @@
-# Prompts, and what they make Claude do
+# Prompts, and what they make the agent do
 
 You do not need special words: the skill triggers on what you ask for. These prompts show
-the main entry points and, for each, what the skill makes Claude do.
+the main entry points and, for each, what the skill makes Codex or Claude Code do. In Codex,
+prefix a request with `$labyrinth-exploration` for explicit invocation; in Claude Code use
+`/labyrinth-exploration`. Matching research requests also select the skill automatically.
 
 ### Set up a new programme
 
 > Set up the labyrinth for this project. Our objects are cubic graphs, the size is the number
 > of vertices, and the invariant is the crossing number. Map what is known.
 
-1. Claude analyzes the project's distinctive features: a computable ground truth, a finite
+1. The agent analyzes the project's distinctive features: a computable ground truth, a finite
    enumeration per size, cross-checks, the communities that touch the objects, the
    available compute.
 2. It creates `labyrinth/` (the engine, the dashboard template and `knowledge.json`), and
@@ -22,7 +24,7 @@ the main entry points and, for each, what the skill makes Claude do.
 
 > Push the bounds on the minimum. Bootstrap all techniques we have.
 
-1. Claude reads the frontier (`lab.py status`) and picks one to three doors where one
+1. The agent reads the frontier (`lab.py status`) and picks one to three doors where one
    computation or proof step would move the map.
 2. It launches literature sweeps in the background and runs small computations at the
    same time.
@@ -34,7 +36,7 @@ the main entry points and, for each, what the skill makes Claude do.
 
 > What is still unknown about this question? Show me where it is dark.
 
-Claude reports the unknown bands of the frontier and the open doors, with the cheapest
+The agent reports the unknown bands of the frontier and the open doors, with the cheapest
 experiment that could move each one. It also lists the hunches: clearly marked as
 speculation, and kept because they point at corridors nobody has entered.
 
@@ -43,11 +45,11 @@ speculation, and kept because they point at corridors nobody has entered.
 > GPT and two subagents sent these proofs and computations. Check them critically before we
 > use anything.
 
-1. Claude saves each report verbatim.
+1. The coordinator saves each report verbatim.
 2. It launches an independent referee for each one. The referee writes its own code and
    returns a verdict per item (ESTABLISHED, WITH CORRECTIONS, GAP, FALSE) with corrections
    ready to apply.
-3. Claude adds its own spot check.
+3. The coordinator adds its own spot check.
 4. Only then does anything enter the notes, with every correction applied. Until then it
    is logged as "under review".
 
@@ -56,7 +58,7 @@ speculation, and kept because they point at corridors nobody has entered.
 > Make a broad attack on the open conjectures. Generate multiple approaches and study them
 > from as many perspectives as possible.
 
-1. Claude prepares a briefing pack.
+1. The coordinator prepares a briefing pack.
 2. It launches attack agents, one per conjecture or group of conjectures, each with at
    least five perspectives and the closed routes listed. A literature agent forwards leads
    to them.
@@ -69,7 +71,7 @@ speculation, and kept because they point at corridors nobody has entered.
 
 > We seem stuck. Climb the saturation ladder.
 
-Claude climbs the ladder, one rung at a time:
+The agent climbs the ladder, one rung at a time:
 1. change the tool family;
 2. change the size parameter or the invariant;
 3. go to the extreme cases;
@@ -86,7 +88,8 @@ Each rung is logged.
 
 > Let's close the session.
 
-Claude updates the state-of-the-art rows (old results into the history), the nodes and the
+The coordinator updates the state-of-the-art rows (old results into the history), the nodes and the
 frontier. It then runs `lab.py check && lab.py build`, rebuilds the documents with zero
-warnings, republishes the dashboard privately, updates the journal and memory, and commits.
+warnings, refreshes the local dashboard or the authorized private deployment, updates the
+project journal and memory, and commits when in scope.
 It finishes by reporting the change in numbers.
