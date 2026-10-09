@@ -15,7 +15,7 @@ and insert.
 1. `<style guide>`: environments, macros, `\cref`, computation environments with script
    paths, status boxes. Follow it exactly.
 2. The part of the notes where the block will go: `<file, section, nearby labels>`. Your text
-   must use the notes' labels; check every label you cite with `grep`.
+   must use the notes' labels; check every label you cite with `rg` (or `grep` if unavailable).
 3. The claim: `research/agents/attack-<topic>/attack-<topic>.tex` and its `report.md`.
 4. The referee report with corrections `<C1–Cn>`: `research/agents/referee-<topic>/report.md`.
    Apply **all** of them; use the referee's own computations in the computation environments.

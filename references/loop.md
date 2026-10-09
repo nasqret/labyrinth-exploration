@@ -94,7 +94,8 @@ Answer these in the project notes. The answers decide which tools pay off.
   (`refutes`) from what refutes it. Then write the modified statement and test it.
   Example: a local weight that was supposed to carry a lower bound, then a second one,
   both refuted. Lesson: the quantity is not local.
-- **Confirmed on data:** T4. **Exhaustive for the stated sizes:** T3. **Proved:** T2, with
+- **Confirmed on data:** T4. **Exhaustive with independently validated certificate code:**
+  T3 for the stated sizes. **Proved:** T2, with
   the proof written in the notes. The review state is updated separately.
 - **State of the art:** if a best known result changed, move the old one into `previous`
   with its date, write the new one, and rebuild.
@@ -111,6 +112,7 @@ proof of the main theorem, and the short proof then gave a new theorem as well.
 
 ## 8. Close the iteration
 
-- `lab.py check`, then `lab.py build`, then republish the dashboard privately.
+- `lab.py check`, then `lab.py build`, then refresh the local dashboard or the authorized
+  private deployment.
 - Write one journal paragraph: what was tried, what the map now says, what is still under
   review, and the next door.

@@ -5,6 +5,15 @@ a proved theorem (the top band), a refuted claim with its lesson, a conjecture w
 a hunch, an open door, a state-of-the-art table with history, a value still under review,
 and a secondary scatter (edges against triangles).
 
+The generated frontier has rows for n = 3 through 8; n = 3 through 7 is exhaustive and
+n = 8 is partial. For n below 3, the only triangle count is zero, so those trivial rows
+are omitted.
+
+The example's review metadata illustrates the schema; the referenced referee reports are
+not bundled. Building the demo does not perform those independent checks. If you import it
+into a working programme, record which checks you actually ran and keep missing review
+evidence pending.
+
 Build it in an empty directory (standard library only, a few seconds):
 
 ```

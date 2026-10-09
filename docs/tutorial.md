@@ -1,7 +1,7 @@
 # Tutorial: how the labyrinth skill works
 
-This tutorial is for people. It explains what the skill makes Claude do and why, and it
-lets you watch every moving part on a small example that runs in seconds. Reading it takes
+This tutorial is for people. It explains what the skill makes Codex or Claude Code do and
+why, and lets you watch every moving part on a small example that runs in seconds. Reading it takes
 about half an hour; doing the steps takes about as long again.
 
 **Contents**
@@ -23,10 +23,10 @@ about half an hour; doing the steps takes about as long again.
 
 ## 1. What a skill is, and what this one does
 
-A **Claude Code skill** is a folder with a file called `SKILL.md`. Its first lines, the
-*frontmatter*, hold a name and a description. Claude always sees the description. When your
-request matches it, for example "push the bounds on …", "map what is still unknown about …",
-or "make a broad attack on the open conjectures", Claude reads the rest of `SKILL.md` and
+A **skill for Codex or Claude Code** is a folder with a file called `SKILL.md`. Its first
+lines, the *frontmatter*, hold a name and a description, used by the client for discovery.
+When your request matches it, for example "push the bounds on …", "map what is still unknown about …",
+or "make a broad attack on the open conjectures", the agent reads the rest of `SKILL.md` and
 follows it. The other files are read only when needed:
 
 ```
@@ -39,8 +39,8 @@ your request ──► description matches ──► SKILL.md (method, artifacts
 ```
 
 **What this skill does.** It turns open-ended research into the exploration of a
-labyrinth, and makes Claude keep an exact map of it. The map lives in your repository as a
-few plain files. A small engine (`lab.py`, standard-library Python) checks the files and
+labyrinth, and makes the agent keep an exact map of it. The map lives in your repository
+as a few plain files. A small engine (`lab.py`, standard-library Python) checks the files and
 builds a dashboard from them. The method is a loop that changes the map in every
 iteration, plus rules that keep the map honest:
 - proof stays apart from speculation;
@@ -55,12 +55,30 @@ and "how much is left" is a number you can watch move.
 
 ## 2. Install
 
+For Codex:
+
 ```bash
-git clone https://github.com/nasqret/labyrinth-exploration ~/.claude/skills/labyrinth-exploration
+mkdir -p "$HOME/.agents/skills"
+git clone https://github.com/nasqret/labyrinth-exploration "$HOME/.agents/skills/labyrinth-exploration"
+LABYRINTH_SKILL_DIR="$HOME/.agents/skills/labyrinth-exploration"
 ```
 
-That is all; the next Claude Code session picks the skill up. To update later:
-`git -C ~/.claude/skills/labyrinth-exploration pull`.
+For Claude Code:
+
+```bash
+mkdir -p "$HOME/.claude/skills"
+git clone https://github.com/nasqret/labyrinth-exploration "$HOME/.claude/skills/labyrinth-exploration"
+LABYRINTH_SKILL_DIR="$HOME/.claude/skills/labyrinth-exploration"
+```
+
+Install the whole repository and keep `LABYRINTH_SKILL_DIR` set to the matching location
+for the commands below. Run the client from your research project. In Codex, invoke
+`$labyrinth-exploration`; in Claude Code, invoke `/labyrinth-exploration`. Either client
+can also select the skill from a matching request. Restart if the installation is not
+visible. To update later, run `git -C "$LABYRINTH_SKILL_DIR" pull`.
+
+The [Codex guide](../references/codex.md) explains native agents and permissions; the
+[Codex testing guide](codex-testing.md) checks actual loader and workflow behavior.
 
 ---
 
@@ -71,15 +89,14 @@ n = 4 the answer is 0, 1, 2 or 4 (never 3). In general some counts below the max
 C(n,3) never occur, and the question is which ones. It is small enough to compute and rich
 enough to have every kind of node, and it is entirely public mathematics.
 
-We build it without Claude first, so that you see exactly what the skill manipulates.
+We build it without an agent first, so that you see exactly what the skill manipulates.
 
 ```bash
-SKILL=~/.claude/skills/labyrinth-exploration
 mkdir -p ~/demo/labyrinth/dashboard && cd ~/demo
-cp $SKILL/templates/lab.py labyrinth/
-cp $SKILL/templates/dashboard.html labyrinth/dashboard/template.html
-cp $SKILL/examples/triangle-counts/{knowledge.json,events.jsonl,sota.json} labyrinth/
-python3 $SKILL/examples/triangle-counts/make_example.py labyrinth
+cp "$LABYRINTH_SKILL_DIR/templates/lab.py" labyrinth/
+cp "$LABYRINTH_SKILL_DIR/templates/dashboard.html" labyrinth/dashboard/template.html
+cp "$LABYRINTH_SKILL_DIR"/examples/triangle-counts/{knowledge.json,events.jsonl,sota.json} labyrinth/
+python3 "$LABYRINTH_SKILL_DIR/examples/triangle-counts/make_example.py" labyrinth
 python3 labyrinth/lab.py check
 python3 labyrinth/lab.py build
 ```
@@ -207,7 +224,7 @@ Open `~/demo/labyrinth/dashboard/index.html`.
 |---|---|---|
 | T1 | proved in the literature (published) or standard | fact |
 | T2 | proved here, not peer reviewed | result, with the caveat |
-| T3 | exhaustive computation, certified code | fact for the stated sizes |
+| T3 | exhaustive computation, independently validated certificate code | fact for the stated sizes, with review provenance |
 | T4 | computational evidence | evidence only |
 | T5 | conjecture, with a stated test | conjecture |
 | T6 | hunch | a direction, not a claim |
@@ -217,6 +234,11 @@ Open `~/demo/labyrinth/dashboard/index.html`.
 - **Review state** (for T2 and T3): `unreviewed` → `under-review` → `refereed` (naming the
   referees) → `human-checked`. A referee raises the review state, never the tier. A result
   of your own programme becomes T1 only once it is published.
+- **Code validation and replay are different.** Code independently validated on earlier
+  cases can support a new T3 certificate run while a second run at the new size is pending
+  in its review state. An exhaustive output from unchecked code stays T4 under review.
+  The example's T3 and referee labels are illustrative metadata; a demo build does not
+  supply their missing verification reports.
 - **Node kinds**: theorem, exhaustive, evidence, conjecture, hunch, question (an open door),
   deadend, family, method, source.
 - **Links**: uses, supports, refutes, modifies, generalizes, suggests, answers, tests,
@@ -235,15 +257,16 @@ The full schema is in [`references/schema.md`](../references/schema.md).
 
 <p align="center"><img src="../assets/loop.svg" width="90%" alt="The loop."></p>
 
-In real use you ask Claude, for example *"Continue the labyrinth: pick the most promising
-door and push it"*, and Claude performs these steps itself. Here we do them by hand on the
+In real use you ask the agent, for example *"Continue the labyrinth: pick the most promising
+door and push it"*, and the agent performs these steps itself. Here we do them by hand on the
 example, so you can see each one. The door is `q.unknown8`: six triangle counts for n = 8
 that nobody has decided.
 
 Work in the demo built in section 3:
 
 ```bash
-cd ~/demo && SKILL=~/.claude/skills/labyrinth-exploration
+cd ~/demo
+# Keep LABYRINTH_SKILL_DIR set to the installation chosen in section 2.
 ```
 
 **Step 1: read the frontier.**
@@ -273,14 +296,14 @@ python3 labyrinth/lab.py event proposed "All six unknown counts for n = 8 occur,
 **Step 4: test, and log at once.** The test is in the example (it needs numpy):
 
 ```bash
-python3 $SKILL/examples/triangle-counts/exhaustive_n8.py
+python3 "$LABYRINTH_SKILL_DIR/examples/triangle-counts/exhaustive_n8.py"
 # n = 8: 45 counts occur; missing: [37, 42, 43, 46, 47, 48, 49, 51, 52, 53, 54, 55]
 python3 labyrinth/lab.py event computed "n = 8 exhaustive: the six unknown counts occur; exactly k.n8 and the top band are missing (under review)" --nodes q.unknown8,k.n8 --evidence exhaustive_n8.py
 ```
 
 **Step 5: referee.** Before the result is used as established, someone else checks it with
-*their own* code. In a session you ask Claude to *"referee this with an independent
-computation"*. Claude then launches a referee agent with the template in
+*their own* code. In a session you ask the agent to *"referee this with an independent
+computation"*. The coordinator then launches a referee agent with the template in
 [`templates/briefs/referee.md`](../templates/briefs/referee.md). The referee may not reuse
 `exhaustive_n8.py`; it has to recompute the counts from the definitions. When the verdict
 comes back:
@@ -298,10 +321,10 @@ python3 labyrinth/lab.py event reviewed "k.n8: ESTABLISHED by an independent rec
 - **milestone:** `{"date": today, "size": 8, "resolved": 1.0, "why": ...}` is added to
   `frontier_history`.
 
-In a session Claude makes these edits. Here the script makes all four for you:
+In a session the coordinator makes these edits. Here the script makes all four for you:
 
 ```bash
-python3 $SKILL/examples/triangle-counts/exhaustive_n8.py --write labyrinth
+python3 "$LABYRINTH_SKILL_DIR/examples/triangle-counts/exhaustive_n8.py" --write labyrinth
 python3 labyrinth/lab.py check && python3 labyrinth/lab.py build
 ```
 
@@ -344,7 +367,7 @@ a state index as if it were a parity vector. None of these were caught by the au
 <p align="center"><img src="../assets/campaign.svg" width="90%" alt="Campaigns of agents."></p>
 
 When there are more open doors than one iteration can enter, ask for a campaign: *"Make a
-broad attack on the open conjectures, from as many perspectives as possible."* Claude then
+broad attack on the open conjectures, from as many perspectives as possible."* The agent then
 does the following:
 1. **Prepares a briefing pack**: a guide of statements with status tags, write-ups with full
    proofs, and a "what is missing" list per conjecture.
@@ -358,8 +381,8 @@ does the following:
    still running.
 5. **Starts writers** after the verdicts ([`templates/briefs/writer.md`](../templates/briefs/writer.md)).
    They produce a block and exact edits, tested on a copy of the notes.
-6. **Integrates as the coordinator.** Claude reads each draft against the verdicts (writers
-   drift), applies the edits with a script that checks each one matches exactly once, and
+6. **Integrates as the coordinator.** The main agent reads each draft against the verdicts
+   (writers drift), applies the edits with a script that checks each one matches exactly once, and
    updates the map. Long runs are committed in two stages: first the data, then the notes
    after the verdict.
 
@@ -371,14 +394,14 @@ The session's usage limit is the real constraint, so launches are staggered. Det
 
 ## 9. Ending a session
 
-At the end of a session Claude follows this protocol:
+At the end of a session the coordinator follows this protocol:
 1. update the state-of-the-art rows (old results into `previous`), the nodes (tier, status,
    review) and the frontier data;
 2. `lab.py check && lab.py build`;
 3. rebuild the notes and documents, with zero errors, undefined references and overfull
    boxes;
-4. republish the dashboard privately;
-5. update the journal, the plan and memory, then commit;
+4. refresh the local dashboard or the authorized private deployment;
+5. update the project journal, plan and memory, then commit when in scope;
 6. report the change in numbers: resolved fraction per size, new theorems, refutations, new
    doors, and what is still under review.
 
@@ -402,7 +425,7 @@ The skill does not stop at the first plateau. It climbs a ladder, one rung at a 
 
 ## 11. Starting your own programme
 
-Ask Claude to set it up: *"Set up the labyrinth for this project: what is our size parameter
+Ask the agent to set it up: *"Set up the labyrinth for this project: what is our size parameter
 and invariant, what is known, what is open?"* It will:
 1. **Analyze the project's distinctive features**: is there a computable ground truth, a
    finite enumeration per size, independent cross-checks? Which communities touch the
@@ -427,9 +450,10 @@ graph, the log, the state of the art and the board work on their own.
 
 ## 12. Privacy
 
-A real programme's map contains unpublished results. The skill publishes dashboards and
-documents **privately** only, and never puts unpublished results into anything public
-without your consent. If you share your own copy of the skill, keep it generic. That is
+A real programme's map contains unpublished results. The skill keeps dashboards and
+documents local, or publishes to an authorized **private** destination, and never puts
+unpublished results into anything public without your consent. If you share your own copy
+of the skill, keep it generic. That is
 also why this repository contains a toy example and anonymized lessons, and not the
 programme it came from.
 

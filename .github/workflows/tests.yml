@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: numpy, for the tutorial's exhaustive test
-        run: python -m pip install --quiet numpy
+      - name: Test dependencies (the runtime uses only the standard library)
+        run: python -m pip install --quiet numpy PyYAML
       - name: Engine, example and consistency tests
         run: python -m unittest discover -s tests -v
