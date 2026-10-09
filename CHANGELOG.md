@@ -6,6 +6,10 @@ interface.
 
 ## [Unreleased]
 
+## [1.1.0] — 2026-10-09
+
+The skill is universal: the same `SKILL.md` serves Codex and Claude Code.
+
 - Native Codex support alongside Claude Code: interface metadata, discovery and invocation
   instructions, a client guide for subagents and permissions, and shared tutorial prompts.
 - Dashboard handoffs can remain local or use an authorized private destination; client
@@ -51,5 +55,6 @@ First public release.
 The method was developed on a research programme in pure mathematics in September and
 October 2026; `references/lessons.md` records its lessons without its results.
 
-[Unreleased]: https://github.com/nasqret/labyrinth-exploration/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/nasqret/labyrinth-exploration/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/nasqret/labyrinth-exploration/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/nasqret/labyrinth-exploration/releases/tag/v1.0.0
