@@ -209,7 +209,7 @@ def hero():
         B.append(f'<circle cx="{cx(hnt):.1f}" cy="{cy(hnt):.1f}" r="10" fill="none" class="s-hunch" stroke-width="2.4" stroke-dasharray="3 3"/>')
         B.append(f'<circle cx="{cx(hnt):.1f}" cy="{cy(hnt):.1f}" r="2.6" class="f-hunch"/>')
     # text
-    B.append(text(64, 112, "A CLAUDE CODE SKILL", "ink3 sans", 15, 700, extra='letter-spacing="2.2"'))
+    B.append(text(64, 112, "AN AGENT SKILL", "ink3 sans", 15, 700, extra='letter-spacing="2.2"'))
     B.append(text(60, 186, "Labyrinth", "ink serif", 68, 700))
     B.append(text(60, 258, "exploration", "ink serif", 68, 700))
     for i, line in enumerate(["Research as mapping a labyrinth: what is",

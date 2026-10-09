@@ -679,7 +679,7 @@ svg { --bg:#EEF1F5;--panel:#F7F8FA;--card:#FFFFFF;--ink:#17202B;--ink2:#465163;-
 <circle cx="1100.0" cy="460.0" r="2.6" class="f-hunch"/>
 <circle cx="972.0" cy="172.0" r="10" fill="none" class="s-hunch" stroke-width="2.4" stroke-dasharray="3 3"/>
 <circle cx="972.0" cy="172.0" r="2.6" class="f-hunch"/>
-<text x="64.0" y="112.0" class="ink3 sans" font-size="15" font-weight="700" text-anchor="start" letter-spacing="2.2">A CLAUDE CODE SKILL</text>
+<text x="64.0" y="112.0" class="ink3 sans" font-size="15" font-weight="700" text-anchor="start" letter-spacing="2.2">AN AGENT SKILL</text>
 <text x="60.0" y="186.0" class="ink serif" font-size="68" font-weight="700" text-anchor="start" >Labyrinth</text>
 <text x="60.0" y="258.0" class="ink serif" font-size="68" font-weight="700" text-anchor="start" >exploration</text>
 <text x="64.0" y="312.0" class="ink2 sans" font-size="21" font-weight="400" text-anchor="start" >Research as mapping a labyrinth: what is</text>

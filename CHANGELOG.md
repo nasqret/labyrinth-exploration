@@ -17,6 +17,8 @@ interface.
 - Clarify the distinction between independently validating certificate code and replaying
   a new size, while retaining the T3 validation requirement and independent-review gate.
 - `assets/social-preview.png` for GitHub's social preview, made by `tools/screenshots.py social`.
+- The hero graphic and the social preview name no single client: "an agent skill" for Codex,
+  Claude Code or any client that reads `SKILL.md`.
 
 ## [1.0.0] — 2026-10-08
 
